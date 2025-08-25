@@ -122,6 +122,110 @@
         <p class="error" data-for="employment"></p>
       </div>
 
+      <!-- Zusatzfelder (optional, per data-required-fields konfigurierbar) -->
+      <div class="field">
+        <label for="street">Straße und Hausnummer</label>
+        <input id="street" name="street" type="text" autocomplete="address-line1" placeholder="Musterstraße 1">
+        <p class="error" data-for="street"></p>
+      </div>
+
+      <div class="field">
+        <label for="postal_code">PLZ</label>
+        <input id="postal_code" name="postal_code" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="12345">
+        <p class="error" data-for="postal_code"></p>
+      </div>
+
+      <div class="field">
+        <label for="city">Ort</label>
+        <input id="city" name="city" type="text" autocomplete="address-level2" placeholder="Berlin">
+        <p class="error" data-for="city"></p>
+      </div>
+
+      <div class="field">
+        <label for="earliest_move_in">Frühester Einzug</label>
+        <input id="earliest_move_in" name="earliest_move_in" type="date">
+        <p class="error" data-for="earliest_move_in"></p>
+      </div>
+
+      <div class="field">
+        <label for="latest_move_in">Spätester Einzug</label>
+        <input id="latest_move_in" name="latest_move_in" type="date">
+        <p class="error" data-for="latest_move_in"></p>
+      </div>
+
+      <div class="field">
+        <label for="pets">Haustiere</label>
+        <select id="pets" name="pets">
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Nein</option>
+          <option>Ja</option>
+        </select>
+        <p class="error" data-for="pets"></p>
+      </div>
+
+      <div class="field">
+        <label for="smoker">Rauchen</label>
+        <select id="smoker" name="smoker">
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Nein</option>
+          <option>Ja</option>
+        </select>
+        <p class="error" data-for="smoker"></p>
+      </div>
+
+      <div class="field">
+        <label for="wbs">WBS vorhanden</label>
+        <select id="wbs" name="wbs">
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Nein</option>
+          <option>Ja</option>
+        </select>
+        <p class="error" data-for="wbs"></p>
+      </div>
+
+      <div class="field">
+        <label for="parking">Parkmöglichkeit</label>
+        <select id="parking" name="parking">
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Kein Bedarf</option>
+          <option>Außenstellplatz</option>
+          <option>Tiefgarage</option>
+        </select>
+        <p class="error" data-for="parking"></p>
+      </div>
+
+      <div class="field">
+        <label for="budget">Monatl. Budget (Warmmiete)</label>
+        <input id="budget" name="budget" type="number" min="0" step="50" placeholder="z. B. 1500">
+        <p class="error" data-for="budget"></p>
+      </div>
+
+      <div class="field">
+        <label for="how_did_you_hear">Wie hast du uns gefunden?</label>
+        <select id="how_did_you_hear" name="how_did_you_hear">
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Website</option>
+          <option>Immobilienscout24</option>
+          <option>Immowelt</option>
+          <option>Empfehlung</option>
+          <option>Social Media</option>
+          <option>Sonstiges</option>
+        </select>
+        <p class="error" data-for="how_did_you_hear"></p>
+      </div>
+
+      <div class="field field--full">
+        <label for="viewing_times">Verfügbarkeit zur Besichtigung</label>
+        <textarea id="viewing_times" name="viewing_times" rows="3" placeholder="Bevorzugte Tage/Uhrzeiten"></textarea>
+        <p class="error" data-for="viewing_times"></p>
+      </div>
+
+      <div class="field field--full">
+        <label for="co_applicant_names">Namen weiterer einziehender Personen</label>
+        <textarea id="co_applicant_names" name="co_applicant_names" rows="3" placeholder="Mitbewohner:innen, Partner:in, Kinder …"></textarea>
+        <p class="error" data-for="co_applicant_names"></p>
+      </div>
+
       <div class="field field--full">
         <label for="message">Kurzvorstellung</label>
         <textarea id="message" name="message" rows="4" placeholder="Wer zieht ein? Aktuelle Situation, Wunschtermin, Fragen …"></textarea>

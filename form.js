@@ -63,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ERR     = q('#formError');
     if (!FORM) return;
 
+    // Zeitmessung für Anti-Spam (minimale Ausfüllzeit)
+    const formInitAt = Date.now();
+
     // Falls im Button kein Spinner vorhanden ist, füge ihn hinzu
     if (SUBMIT && !SUBMIT.querySelector('.btn__spinner')) {
       const sp = document.createElement('span');
@@ -72,8 +75,235 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Config =====
-    const MAKE_WEBHOOK_URL = 'https://hook.eu2.make.com/YOUR_MAKE_WEBHOOK_URL'; // <— DEINE URL hier einsetzen
-    const REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
+    const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/YOUR_MAKE_WEBHOOK_URL';
+    const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
+    const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
+    let REQUIRED = DEFAULT_REQUIRED.slice();
+
+    // Sprache aus data-lang, URL (?lang=de/en) oder Browser ableiten
+    const urlLang = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+    let LANG = (WRAP.dataset.lang || urlLang || (navigator.language || 'de')).slice(0,2).toLowerCase();
+    LANG = (LANG === 'en') ? 'en' : 'de';
+
+    // i18n Wörterbuch
+    const I18N = {
+      de: {
+        title: `Jetzt bewerben – ${WRAP?.dataset.name || ''}`.trim(),
+        subtitle: 'Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.',
+        labels: {
+          full_name: 'Vollständiger Name *',
+          email: 'E-Mail *',
+          phone: 'Telefon (mobil) *',
+          move_in: 'Gewünschter Einzug *',
+          occupants: 'Personen im Haushalt *',
+          income: 'Monatl. Nettoeinkommen (gesamt) *',
+          employment: 'Beschäftigung *',
+          message: 'Kurzvorstellung',
+          privacy: 'Ich willige in die Verarbeitung meiner Daten zum Zweck der Wohnungsbewerbung ein. Hinweise in der <a href="/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>.',
+          street: 'Straße und Hausnummer',
+          postal_code: 'PLZ',
+          city: 'Ort',
+          earliest_move_in: 'Frühester Einzug',
+          latest_move_in: 'Spätester Einzug',
+          pets: 'Haustiere',
+          smoker: 'Rauchen',
+          wbs: 'WBS vorhanden',
+          parking: 'Parkmöglichkeit',
+          budget: 'Monatl. Budget (Warmmiete)',
+          how_did_you_hear: 'Wie hast du uns gefunden?',
+          viewing_times: 'Verfügbarkeit zur Besichtigung',
+          co_applicant_names: 'Namen weiterer einziehender Personen'
+        },
+        placeholders: {
+          full_name: 'Max Mustermann',
+          email: 'max@example.com',
+          phone: '+49…',
+          message: 'Wer zieht ein? Aktuelle Situation, Wunschtermin, Fragen …',
+          street: 'Musterstraße 1',
+          postal_code: '12345',
+          city: 'Berlin',
+          viewing_times: 'Bevorzugte Tage/Uhrzeiten',
+          co_applicant_names: 'Mitbewohner:innen, Partner:in, Kinder …',
+          budget: 'z. B. 1500'
+        },
+        selects: {
+          income: ['Bitte wählen','< 2.000 €','2.000 – 3.000 €','3.000 – 4.500 €','4.500 – 6.000 €','> 6.000 €'],
+          employment: ['Bitte wählen','Angestellt (unbefristet)','Angestellt (befristet)','Selbstständig/Freiberuflich','Studierend/Auszubildend','Sonstiges'],
+          pets: ['Bitte wählen','Nein','Ja'],
+          smoker: ['Bitte wählen','Nein','Ja'],
+          wbs: ['Bitte wählen','Nein','Ja'],
+          parking: ['Bitte wählen','Kein Bedarf','Außenstellplatz','Tiefgarage'],
+          how_did_you_hear: ['Bitte wählen','Website','Immobilienscout24','Immowelt','Empfehlung','Social Media','Sonstiges']
+        },
+        submit: 'Anfrage senden',
+        note: '* Pflichtfelder',
+        success_h3: 'Vielen Dank!',
+        success_p: 'Deine Anfrage ist eingegangen. Wir melden uns zeitnah.',
+        error_h3: 'Uups, da ging was schief.',
+        error_p: 'Bitte später nochmal versuchen oder <a href="/kontakt">Kontakt aufnehmen</a>.',
+        errs: {
+          required: 'Erforderlich.',
+          email: 'Ungültige E-Mail.',
+          phone: 'Bitte gültige Telefonnummer angeben.',
+          min_time: 'Bitte nimm dir einen Moment Zeit, bevor du absendest.',
+          cooldown: 'Bitte kurz warten, bevor du erneut sendest.'
+        }
+      },
+      en: {
+        title: `Apply now – ${WRAP?.dataset.name || ''}`.trim(),
+        subtitle: 'Quick, non-binding inquiry. We will get back to you shortly.',
+        labels: {
+          full_name: 'Full name *',
+          email: 'Email *',
+          phone: 'Phone (mobile) *',
+          move_in: 'Desired move-in *',
+          occupants: 'People in household *',
+          income: 'Monthly net income (total) *',
+          employment: 'Employment *',
+          message: 'Message',
+          privacy: 'I consent to the processing of my data for the purpose of renting application. See the <a href="/datenschutz" target="_blank" rel="noopener">privacy policy</a>.',
+          street: 'Street and number',
+          postal_code: 'Postal code',
+          city: 'City',
+          earliest_move_in: 'Earliest move-in',
+          latest_move_in: 'Latest move-in',
+          pets: 'Pets',
+          smoker: 'Smoking',
+          wbs: 'Housing entitlement certificate',
+          parking: 'Parking',
+          budget: 'Monthly budget (warm rent)',
+          how_did_you_hear: 'How did you hear about us?',
+          viewing_times: 'Availability for viewing',
+          co_applicant_names: 'Names of additional occupants'
+        },
+        placeholders: {
+          full_name: 'John Doe',
+          email: 'john@example.com',
+          phone: '+1…',
+          message: 'Who moves in? Current situation, preferred date, questions …',
+          street: '123 Main St',
+          postal_code: '12345',
+          city: 'City',
+          viewing_times: 'Preferred days/times',
+          co_applicant_names: 'Roommates, partner, children …',
+          budget: 'e.g., 1500'
+        },
+        selects: {
+          income: ['Please choose','< €2,000','€2,000 – €3,000','€3,000 – €4,500','€4,500 – €6,000','> €6,000'],
+          employment: ['Please choose','Employed (permanent)','Employed (fixed-term)','Self-employed/Freelance','Student/Apprentice','Other'],
+          pets: ['Please choose','No','Yes'],
+          smoker: ['Please choose','No','Yes'],
+          wbs: ['Please choose','No','Yes'],
+          parking: ['Please choose','No need','Outdoor space','Underground parking'],
+          how_did_you_hear: ['Please choose','Website','Immobilienscout24','Immowelt','Recommendation','Social media','Other']
+        },
+        submit: 'Send inquiry',
+        note: '* Required fields',
+        success_h3: 'Thank you!',
+        success_p: 'Your request has been received. We will get back to you soon.',
+        error_h3: 'Something went wrong.',
+        error_p: 'Please try again later or <a href="/kontakt">contact us</a>.',
+        errs: {
+          required: 'Required.',
+          email: 'Invalid email.',
+          phone: 'Please enter a valid phone number.',
+          min_time: 'Please take a moment before submitting.',
+          cooldown: 'Please wait a bit before sending again.'
+        }
+      }
+    };
+
+    function applyI18n() {
+      const t = I18N[LANG];
+      // Header
+      const title = q('.zam-apply__title'); if (title) title.textContent = t.title;
+      const subtitle = q('.zam-apply__subtitle'); if (subtitle) subtitle.textContent = t.subtitle;
+      // Labels
+      const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
+      setLabel('full_name', t.labels.full_name);
+      setLabel('email', t.labels.email);
+      setLabel('phone', t.labels.phone);
+      setLabel('move_in', t.labels.move_in);
+      setLabel('occupants', t.labels.occupants);
+      setLabel('income', t.labels.income);
+      setLabel('employment', t.labels.employment);
+      setLabel('message', t.labels.message);
+      setLabel('street', t.labels.street);
+      setLabel('postal_code', t.labels.postal_code);
+      setLabel('city', t.labels.city);
+      setLabel('earliest_move_in', t.labels.earliest_move_in);
+      setLabel('latest_move_in', t.labels.latest_move_in);
+      setLabel('pets', t.labels.pets);
+      setLabel('smoker', t.labels.smoker);
+      setLabel('wbs', t.labels.wbs);
+      setLabel('parking', t.labels.parking);
+      setLabel('budget', t.labels.budget);
+      setLabel('how_did_you_hear', t.labels.how_did_you_hear);
+      setLabel('viewing_times', t.labels.viewing_times);
+      setLabel('co_applicant_names', t.labels.co_applicant_names);
+      const privacySpan = q('.checks .check span'); if (privacySpan) privacySpan.innerHTML = t.labels.privacy;
+      // Placeholders
+      const setPH = (name, ph) => { const el = q(`#${name}`); if (el && 'placeholder' in el) el.placeholder = ph; };
+      setPH('full_name', t.placeholders.full_name);
+      setPH('email', t.placeholders.email);
+      setPH('phone', t.placeholders.phone);
+      const msg = q('#message'); if (msg) msg.placeholder = t.placeholders.message;
+      setPH('street', t.placeholders.street);
+      setPH('postal_code', t.placeholders.postal_code);
+      setPH('city', t.placeholders.city);
+      const vt = q('#viewing_times'); if (vt) vt.placeholder = t.placeholders.viewing_times;
+      const co = q('#co_applicant_names'); if (co) co.placeholder = t.placeholders.co_applicant_names;
+      const bud = q('#budget'); if (bud) bud.placeholder = t.placeholders.budget;
+      // Select options (first option is placeholder)
+      const incomeSel = q('#income');
+      if (incomeSel && t.selects.income?.length) {
+        const vals = t.selects.income;
+        incomeSel.innerHTML = '';
+        vals.forEach((label, idx) => {
+          const opt = document.createElement('option');
+          opt.textContent = label;
+          if (idx === 0) { opt.value = ''; opt.disabled = true; opt.selected = true; }
+          incomeSel.appendChild(opt);
+        });
+      }
+      const employmentSel = q('#employment');
+      if (employmentSel && t.selects.employment?.length) {
+        const vals = t.selects.employment;
+        employmentSel.innerHTML = '';
+        vals.forEach((label, idx) => {
+          const opt = document.createElement('option');
+          opt.textContent = label;
+          if (idx === 0) { opt.value = ''; opt.disabled = true; opt.selected = true; }
+          employmentSel.appendChild(opt);
+        });
+      }
+      const setSelect = (id, arr) => {
+        const sel = q('#' + id);
+        if (sel && Array.isArray(arr) && arr.length) {
+          const current = sel.value;
+          sel.innerHTML = '';
+          arr.forEach((label, idx) => {
+            const opt = document.createElement('option');
+            opt.textContent = label;
+            if (idx === 0) { opt.value = ''; opt.disabled = true; opt.selected = true; }
+            sel.appendChild(opt);
+          });
+          const canRestore = Array.from(sel.options).some(o => o.textContent === current);
+          if (canRestore) sel.value = current;
+        }
+      };
+      setSelect('pets', t.selects.pets);
+      setSelect('smoker', t.selects.smoker);
+      setSelect('wbs', t.selects.wbs);
+      setSelect('parking', t.selects.parking);
+      setSelect('how_did_you_hear', t.selects.how_did_you_hear);
+      // Buttons & Notes
+      const note = q('.form-note'); if (note) note.textContent = t.note;
+      if (SUBMIT) SUBMIT.firstChild && (SUBMIT.firstChild.nodeType === 3) && (SUBMIT.firstChild.textContent = t.submit + ' ');
+      // Feedback
+      if (SUCCESS) { const h = SUCCESS.querySelector('h3'); const p = SUCCESS.querySelector('p'); if (h) h.textContent = t.success_h3; if (p) p.textContent = t.success_p; }
+      if (ERR) { const h = ERR.querySelector('h3'); const p = ERR.querySelector('p'); if (h) h.textContent = t.error_h3; if (p) p.innerHTML = t.error_p; }
+    }
 
     // ===== Meta aus data-* (vom selben Item) =====
     const meta = {
@@ -90,6 +320,99 @@ document.addEventListener('DOMContentLoaded', () => {
       status:      WRAP?.dataset.status || '',
       form_aktiv:  WRAP?.dataset.formAktiv || ''
     };
+
+    // ===== Dynamische Felder / Pflichtfelder (pro Unit) =====
+    const extraFieldsRaw = WRAP.dataset.extraFields || '';
+    const requiredFieldsRaw = WRAP.dataset.requiredFields || '';
+    let extraFields = [];
+    try { if (extraFieldsRaw) extraFields = JSON.parse(extraFieldsRaw); } catch {}
+    if (!Array.isArray(extraFields)) extraFields = [];
+
+    let extraRequired = [];
+    try {
+      if (requiredFieldsRaw) {
+        const parsed = JSON.parse(requiredFieldsRaw);
+        if (Array.isArray(parsed)) extraRequired = parsed;
+      }
+    } catch {
+      if (requiredFieldsRaw && typeof requiredFieldsRaw === 'string') {
+        extraRequired = requiredFieldsRaw.split(',').map(s => s.trim()).filter(Boolean);
+      }
+    }
+    REQUIRED = Array.from(new Set([...REQUIRED, ...extraRequired]));
+
+    // Render dynamische Zusatzfelder
+    const extraFieldNames = [];
+    function renderExtraFields() {
+      if (!extraFields.length) return;
+      const grid = q('.form-grid');
+      const checks = q('.checks');
+      const insertBefore = checks || grid.lastElementChild;
+      extraFields.forEach((cfg) => {
+        if (!cfg || !cfg.name) return;
+        const type = (cfg.type || 'text').toLowerCase();
+        const name = String(cfg.name);
+        const id = name;
+        const isRequired = !!cfg.required || REQUIRED.includes(name);
+        const labelTxt = (typeof cfg.label === 'object') ? (cfg.label[LANG] || cfg.label.de || cfg.label.en || name) : (cfg.label || name);
+        const placeholderTxt = (typeof cfg.placeholder === 'object') ? (cfg.placeholder[LANG] || cfg.placeholder.de || cfg.placeholder.en || '') : (cfg.placeholder || '');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'field' + (cfg.fullWidth ? ' field--full' : '');
+
+        const label = document.createElement('label');
+        label.setAttribute('for', id);
+        label.innerHTML = labelTxt + (isRequired ? ' *' : '');
+        wrap.appendChild(label);
+
+        let inputEl;
+        if (type === 'textarea') {
+          inputEl = document.createElement('textarea');
+          inputEl.rows = cfg.rows || 3;
+        } else if (type === 'select') {
+          inputEl = document.createElement('select');
+          const opts = Array.isArray(cfg.options) ? cfg.options : [];
+          // First placeholder option if provided
+          const ph = placeholderTxt || (LANG === 'en' ? 'Please choose' : 'Bitte wählen');
+          const opt0 = document.createElement('option');
+          opt0.value = '';
+          opt0.textContent = ph;
+          opt0.disabled = true;
+          opt0.selected = true;
+          inputEl.appendChild(opt0);
+          opts.forEach((o) => {
+            const opt = document.createElement('option');
+            if (typeof o === 'string') { opt.value = o; opt.textContent = o; }
+            else { opt.value = o.value ?? ''; const lbl = (typeof o.label === 'object') ? (o.label[LANG] || o.label.de || o.label.en || String(o.value || '')) : (o.label || String(o.value || '')); opt.textContent = lbl; }
+            inputEl.appendChild(opt);
+          });
+        } else if (type === 'checkbox') {
+          inputEl = document.createElement('input');
+          inputEl.type = 'checkbox';
+        } else {
+          inputEl = document.createElement('input');
+          inputEl.type = type;
+          if (placeholderTxt) inputEl.placeholder = placeholderTxt;
+        }
+
+        inputEl.id = id;
+        inputEl.name = name;
+        if (isRequired) inputEl.required = true;
+        wrap.appendChild(inputEl);
+
+        const err = document.createElement('p');
+        err.className = 'error';
+        err.dataset.for = name;
+        err.setAttribute('role', 'status');
+        err.setAttribute('aria-live', 'polite');
+        wrap.appendChild(err);
+
+        if (insertBefore && insertBefore.parentNode === grid) grid.insertBefore(wrap, insertBefore);
+        else grid.appendChild(wrap);
+
+        extraFieldNames.push({ name, type });
+      });
+    }
 
     // ===== Facts füllen (lokal) =====
     setText('#fact-haus',  meta.haus);
@@ -228,10 +551,10 @@ document.addEventListener('DOMContentLoaded', () => {
       REQUIRED.forEach(name => {
         const el = getField(name);
         if (!el) return;
-        if (el.type === 'checkbox' && !el.checked) { ok = false; showError(name, 'Erforderlich.'); if (!firstInvalid) firstInvalid = el; return; }
-        if (!el.value) { ok = false; showError(name, 'Erforderlich.'); if (!firstInvalid) firstInvalid = el; return; }
-        if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, 'Ungültige E-Mail.'); if (!firstInvalid) firstInvalid = el; return; }
-        if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, 'Bitte gültige Telefonnummer angeben.'); if (!firstInvalid) firstInvalid = el; return; }
+        if (el.type === 'checkbox' && !el.checked) { ok = false; showError(name, I18N[LANG].errs.required); if (!firstInvalid) firstInvalid = el; return; }
+        if (!el.value && el.type !== 'checkbox') { ok = false; showError(name, I18N[LANG].errs.required); if (!firstInvalid) firstInvalid = el; return; }
+        if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, I18N[LANG].errs.email); if (!firstInvalid) firstInvalid = el; return; }
+        if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, I18N[LANG].errs.phone); if (!firstInvalid) firstInvalid = el; return; }
       });
 
       // Honeypot
@@ -246,6 +569,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Submit (lokal) =====
     FORM.addEventListener('submit', async (e) => {
       e.preventDefault();
+      // Zeitbasierte Schranke
+      const MIN_MS = 2500;
+      if (Date.now() - formInitAt < MIN_MS) {
+        if (ERR) { ERR.hidden = false; const p = ERR.querySelector('p'); if (p) p.textContent = I18N[LANG].errs.min_time; }
+        return;
+      }
+
+      // Cooldown (lokal, per Unit)
+      const cdKey = `zam_apply_cd_${meta.unit_id || 'global'}`;
+      const COOLDOWN_MS = 8000;
+      try {
+        const last = Number(localStorage.getItem(cdKey) || '0');
+        if (Date.now() - last < COOLDOWN_MS) {
+          if (ERR) { ERR.hidden = false; const p = ERR.querySelector('p'); if (p) p.textContent = I18N[LANG].errs.cooldown; }
+          return;
+        }
+      } catch {}
+
       if (!validate()) return;
 
       const spinner = SUBMIT ? SUBMIT.querySelector('.btn__spinner') : null;
@@ -253,6 +594,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (spinner) spinner.style.display = 'inline-block';
 
       try {
+        // Sammle Extras
+        const extras = {};
+        extraFieldNames.forEach(({ name, type }) => {
+          const el = getField(name);
+          if (!el) return;
+          if (type === 'checkbox') extras[name] = !!el.checked;
+          else extras[name] = (el.value || '').toString();
+        });
+
         const payload = {
           submitted_at: new Date().toISOString(),
           unit: meta,
@@ -265,6 +615,19 @@ document.addEventListener('DOMContentLoaded', () => {
             income:     FORM.income?.value || '',
             employment: FORM.employment?.value || '',
             message:    (FORM.message?.value || '').trim(),
+            street:     (FORM.street?.value || '').trim(),
+            postal_code: (FORM.postal_code?.value || '').trim(),
+            city:       (FORM.city?.value || '').trim(),
+            earliest_move_in: FORM.earliest_move_in?.value || '',
+            latest_move_in:   FORM.latest_move_in?.value || '',
+            pets:       FORM.pets?.value || '',
+            smoker:     FORM.smoker?.value || '',
+            wbs:        FORM.wbs?.value || '',
+            parking:    FORM.parking?.value || '',
+            budget:     FORM.budget?.value || '',
+            how_did_you_hear: FORM.how_did_you_hear?.value || '',
+            viewing_times: (FORM.viewing_times?.value || '').trim(),
+            co_applicant_names: (FORM.co_applicant_names?.value || '').trim(),
             privacy:    !!FORM.privacy?.checked,
             page_url:   hf('page_url')?.value || '',
             utm_source: hf('utm_source')?.value || '',
@@ -272,12 +635,14 @@ document.addEventListener('DOMContentLoaded', () => {
             utm_campaign: hf('utm_campaign')?.value || '',
             utm_content:  hf('utm_content')?.value || ''
           },
+          lang: LANG,
+          extras,
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
         };
 
         const res = await fetch(MAKE_WEBHOOK_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept-Language': LANG },
           body: JSON.stringify(payload),
           keepalive: true
         });
@@ -287,6 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
           clearErrors();
           if (SUCCESS) SUCCESS.hidden = false;
           if (ERR) ERR.hidden = true;
+          try { localStorage.setItem(cdKey, String(Date.now())); } catch {}
         } else {
           throw new Error('Response not OK');
         }
@@ -300,5 +666,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (SUBMIT) SUBMIT.disabled = false;
       }
     }, { passive: false });
+
+    // Initial i18n anwenden & dynamische Felder einfügen
+    applyI18n();
+    renderExtraFields();
   });
 });

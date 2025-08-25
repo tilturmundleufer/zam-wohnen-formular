@@ -3,6 +3,12 @@
     --brand-accent:  #4f7cff;
     --brand-bg:      #f7f8fa;
     --brand-text:    #111827;
+    --success-bg:    #f0fdf4;
+    --success-bd:    #dcfce7;
+    --success-fg:    #064e3b;
+    --error-bg:      #fff7f7;
+    --error-bd:      #fbd5d5;
+    --error-ring:    rgba(239,68,68,.15);
   
     --radius: 14px;
     --radius-sm: 10px;
@@ -13,6 +19,7 @@
     --input-bd: #e5e7eb;
     --input-bd-focus: var(--brand-accent);
     --focus-ring: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 30%, transparent);
+    --disabled-opacity: .6;
   }
   
   /* ============== Layout ============== */
@@ -44,9 +51,9 @@
     outline: none; border-color: var(--input-bd-focus); box-shadow: var(--focus-ring);
   }
   .field [aria-invalid="true"] {
-    border-color: #ef4444;
-    background: #fff7f7;
-    box-shadow: 0 0 0 3px rgba(239,68,68,.15);
+    border-color: var(--error-bd);
+    background: var(--error-bg);
+    box-shadow: 0 0 0 3px var(--error-ring);
   }
   .field .error { min-height: 1.1em; color: #b42318; font-size: .9rem; margin-top: .25rem; }
   
@@ -62,12 +69,13 @@
   .btn--primary { background: var(--brand-primary); color: #fff; box-shadow: var(--shadow-2); }
   .btn--primary:hover { transform: translateY(-1px); }
   .btn--primary:active { transform: translateY(0); }
+  .btn[disabled] { opacity: var(--disabled-opacity); cursor: not-allowed; }
   .btn__spinner { width: 0.9em; height: 0.9em; border-radius: 999px; border: 2px solid #ffffff80; border-top-color: #fff; display: none; animation: spin .9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
   .hp { position: absolute !important; left: -9999px !important; opacity: 0 !important; }
   
-  .form-feedback { margin-top: 16px; background: #f0fdf4; border: 1px solid #dcfce7; color: #064e3b; padding: 12px; border-radius: var(--radius-sm); }
+  .form-feedback { margin-top: 16px; background: var(--success-bg); border: 1px solid var(--success-bd); color: var(--success-fg); padding: 12px; border-radius: var(--radius-sm); }
   .form-feedback--error { background: #fef2f2; border-color: #fee2e2; color: #7f1d1d; }
   
   @media (max-width: 1150px) {
