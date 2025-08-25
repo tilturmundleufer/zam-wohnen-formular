@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
           budget: 'z. B. 1500'
         },
         selects: {
-          income: ['Bitte wählen','< 2.000 €','2.000 – 3.000 €','3.000 – 4.500 €','4.500 – 6.000 €','> 6.000 €'],
           employment: ['Bitte wählen','Angestellt (unbefristet)','Angestellt (befristet)','Selbstständig/Freiberuflich','Studierend/Auszubildend','Sonstiges'],
           pets: ['Bitte wählen','Nein','Ja'],
           smoker: ['Bitte wählen','Nein','Ja'],
@@ -189,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
           budget: 'e.g., 1500'
         },
         selects: {
-          income: ['Please choose','< €2,000','€2,000 – €3,000','€3,000 – €4,500','€4,500 – €6,000','> €6,000'],
           employment: ['Please choose','Employed (permanent)','Employed (fixed-term)','Self-employed/Freelance','Student/Apprentice','Other'],
           pets: ['Please choose','No','Yes'],
           smoker: ['Please choose','No','Yes'],
@@ -256,17 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const co = q('#co_applicant_names'); if (co) co.placeholder = t.placeholders.co_applicant_names;
       const bud = q('#budget'); if (bud) bud.placeholder = t.placeholders.budget;
       // Select options (first option is placeholder)
-      const incomeSel = q('#income');
-      if (incomeSel && t.selects.income?.length) {
-        const vals = t.selects.income;
-        incomeSel.innerHTML = '';
-        vals.forEach((label, idx) => {
-          const opt = document.createElement('option');
-          opt.textContent = label;
-          if (idx === 0) { opt.value = ''; opt.disabled = true; opt.selected = true; }
-          incomeSel.appendChild(opt);
-        });
-      }
+      // income ist nun number input, keine Select-Befüllung mehr
       const employmentSel = q('#employment');
       if (employmentSel && t.selects.employment?.length) {
         const vals = t.selects.employment;
@@ -625,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
             smoker:     FORM.smoker?.value || '',
             wbs:        FORM.wbs?.value || '',
             parking:    FORM.parking?.value || '',
-            budget:     FORM.budget?.value || '',
+            
             how_did_you_hear: FORM.how_did_you_hear?.value || '',
             viewing_times: (FORM.viewing_times?.value || '').trim(),
             co_applicant_names: (FORM.co_applicant_names?.value || '').trim(),

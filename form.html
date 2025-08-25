@@ -105,14 +105,7 @@
 
       <div class="field field--third">
         <label for="income">Monatl. Nettoeinkommen (gesamt) *</label>
-        <select id="income" name="income" required>
-          <option value="" disabled selected>Bitte wählen</option>
-          <option>&lt; 2.000 €</option>
-          <option>2.000 – 3.000 €</option>
-          <option>3.000 – 4.500 €</option>
-          <option>4.500 – 6.000 €</option>
-          <option>&gt; 6.000 €</option>
-        </select>
+        <input id="income" name="income" type="number" inputmode="numeric" min="0" step="1" required placeholder="z. B. 3500">
         <p class="error" data-for="income"></p>
       </div>
 
@@ -201,11 +194,7 @@
         <p class="error" data-for="parking"></p>
       </div>
 
-      <div class="field field--third">
-        <label for="budget">Monatl. Budget (Warmmiete)</label>
-        <input id="budget" name="budget" type="number" min="0" step="50" placeholder="z. B. 1500">
-        <p class="error" data-for="budget"></p>
-      </div>
+
 
       <div class="field field--third">
         <label for="how_did_you_hear">Wie hast du uns gefunden?</label>
