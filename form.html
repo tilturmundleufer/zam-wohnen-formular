@@ -44,7 +44,14 @@
     <div class="zam-apply__tags" id="featureTags" aria-label="Ausstattung"></div>
   </header>
 
-  <form id="zam-form" class="zam-form" novalidate>
+  <details class="zam-apply__toggle">
+    <summary>
+      <span class="chev" aria-hidden="true"></span>
+      Formular ausklappen
+    </summary>
+  </details>
+
+  <form id="zam-form" class="zam-form" novalidate hidden>
     <!-- Hidden meta (gehen an Make.com) -->
     <input type="hidden" name="unit_id" id="unit_id">
     <input type="hidden" name="unit_name" id="unit_name">

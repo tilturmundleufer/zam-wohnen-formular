@@ -218,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Header
       const title = q('.zam-apply__title'); if (title) title.textContent = t.title;
       const subtitle = q('.zam-apply__subtitle'); if (subtitle) subtitle.textContent = t.subtitle;
+      const summary = q('.zam-apply__toggle summary'); if (summary) summary.lastChild && summary.lastChild.nodeType === 3 && (summary.lastChild.textContent = (LANG==='en'?'Open form':'Formular ausklappen'));
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
       setLabel('full_name', t.labels.full_name);
@@ -666,6 +667,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (SUBMIT) SUBMIT.disabled = false;
       }
     }, { passive: false });
+
+    // Toggle: Formular ein-/ausblenden
+    const TOGGLE = q('.zam-apply__toggle');
+    if (TOGGLE) {
+      TOGGLE.addEventListener('toggle', () => {
+        if (TOGGLE.open) {
+          FORM.hidden = false;
+        } else {
+          FORM.hidden = true;
+        }
+      });
+    } else {
+      FORM.hidden = false;
+    }
 
     // Initial i18n anwenden & dynamische Felder einfügen
     applyI18n();
