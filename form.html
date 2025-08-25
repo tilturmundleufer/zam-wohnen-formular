@@ -1,0 +1,155 @@
+<section
+  class="zam-apply"
+  data-theme="zam"
+  id="zam-apply"
+  data-lang="de"
+  data-webhook=""
+  
+  
+  
+
+  <!-- Binde diese data-* Werte im Designer an CMS-Felder -->
+  data-unit-id="{{ unit_id }}"
+  data-name="{{ name }}"
+  data-haus="{{ haus }}"
+  data-stockwerk="{{ stockwerk }}"
+  data-zimmer="{{ zimmer }}"
+  data-wohnflaeche="{{ wohnflaeche_qm }}"
+  data-kaltmiete="{{ kaltmiete_gerundet }}"
+  data-nebenkosten="{{ nebenkosten_gerundet }}"
+  data-warmmiete="{{ warmmiete_gerundet }}"
+  data-ausrichtung="{{ ausrichtung_gesamt }}"
+  data-status="{{ status }}"
+  data-form-aktiv="{{ form_aktiv }}"
+>
+  <!-- Wichtig: Platziere außerhalb des Embeds auf der Seite
+       einen gebundenen Rich-Text-Block mit Klasse .rte-ausstattung-source
+       (Display: none). Der JS-Code liest dessen Inhalt aus und baut Tags. -->
+
+  <header class="zam-apply__header">
+    <h2 class="zam-apply__title">Jetzt bewerben – {{ name }}</h2>
+    <p class="zam-apply__subtitle">Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.</p>
+
+    <ul class="zam-apply__facts" aria-label="Wohnungsdetails">
+      <li><span>Haus</span><strong id="fact-haus">—</strong></li>
+      <li><span>Stockwerk</span><strong id="fact-stock">—</strong></li>
+      <li><span>Zimmer</span><strong id="fact-rooms">—</strong></li>
+      <li><span>Fläche</span><strong id="fact-size">—</strong></li>
+      <li><span>Warmmiete</span><strong id="fact-warm">—</strong></li>
+      <li><span>Kaltmiete</span><strong id="fact-cold">—</strong></li>
+      <li><span>Nebenkosten</span><strong id="fact-nk">—</strong></li>
+      <li class="wide"><span>Ausrichtung</span><strong id="fact-orient">—</strong></li>
+    </ul>
+
+    <div class="zam-apply__tags" id="featureTags" aria-label="Ausstattung"></div>
+  </header>
+
+  <form id="zam-form" class="zam-form" novalidate>
+    <!-- Hidden meta (gehen an Make.com) -->
+    <input type="hidden" name="unit_id" id="unit_id">
+    <input type="hidden" name="unit_name" id="unit_name">
+    <input type="hidden" name="haus" id="haus">
+    <input type="hidden" name="stockwerk" id="stockwerk">
+    <input type="hidden" name="zimmer" id="zimmer">
+    <input type="hidden" name="wohnflaeche_qm" id="wohnflaeche_qm">
+    <input type="hidden" name="kaltmiete_gerundet" id="kaltmiete_gerundet">
+    <input type="hidden" name="nebenkosten_gerundet" id="nebenkosten_gerundet">
+    <input type="hidden" name="warmmiete_gerundet" id="warmmiete_gerundet">
+    <input type="hidden" name="ausrichtung_gesamt" id="ausrichtung_gesamt">
+    <input type="hidden" name="status" id="status">
+    <input type="hidden" name="page_url" id="page_url">
+    <input type="hidden" name="utm_source" id="utm_source">
+    <input type="hidden" name="utm_medium" id="utm_medium">
+    <input type="hidden" name="utm_campaign" id="utm_campaign">
+    <input type="hidden" name="utm_content" id="utm_content">
+    <!-- Honeypot -->
+    <input type="text" name="website" id="website" autocomplete="off" tabindex="-1" class="hp" aria-hidden="true">
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="full_name">Vollständiger Name *</label>
+        <input id="full_name" name="full_name" type="text" required autocomplete="name" placeholder="Max Mustermann">
+        <p class="error" data-for="full_name"></p>
+      </div>
+
+      <div class="field">
+        <label for="email">E-Mail *</label>
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="max@example.com">
+        <p class="error" data-for="email"></p>
+      </div>
+
+      <div class="field">
+        <label for="phone">Telefon (mobil) *</label>
+        <input id="phone" name="phone" type="tel" required autocomplete="tel" placeholder="+49…">
+        <p class="error" data-for="phone"></p>
+      </div>
+
+      <div class="field">
+        <label for="move_in">Gewünschter Einzug *</label>
+        <input id="move_in" name="move_in" type="date" required>
+        <p class="error" data-for="move_in"></p>
+      </div>
+
+      <div class="field">
+        <label for="occupants">Personen im Haushalt *</label>
+        <input id="occupants" name="occupants" type="number" min="1" required value="1">
+        <p class="error" data-for="occupants"></p>
+      </div>
+
+      <div class="field">
+        <label for="income">Monatl. Nettoeinkommen (gesamt) *</label>
+        <select id="income" name="income" required>
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>&lt; 2.000 €</option>
+          <option>2.000 – 3.000 €</option>
+          <option>3.000 – 4.500 €</option>
+          <option>4.500 – 6.000 €</option>
+          <option>&gt; 6.000 €</option>
+        </select>
+        <p class="error" data-for="income"></p>
+      </div>
+
+      <div class="field">
+        <label for="employment">Beschäftigung *</label>
+        <select id="employment" name="employment" required>
+          <option value="" disabled selected>Bitte wählen</option>
+          <option>Angestellt (unbefristet)</option>
+          <option>Angestellt (befristet)</option>
+          <option>Selbstständig/Freiberuflich</option>
+          <option>Studierend/Auszubildend</option>
+          <option>Sonstiges</option>
+        </select>
+        <p class="error" data-for="employment"></p>
+      </div>
+
+      <div class="field field--full">
+        <label for="message">Kurzvorstellung</label>
+        <textarea id="message" name="message" rows="4" placeholder="Wer zieht ein? Aktuelle Situation, Wunschtermin, Fragen …"></textarea>
+      </div>
+
+      <div class="checks field--full">
+        <label class="check">
+          <input type="checkbox" id="privacy" required>
+          <span>Ich willige in die Verarbeitung meiner Daten zum Zweck der Wohnungsbewerbung ein. Hinweise in der <a href="/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>.</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary" id="submitBtn">
+        Anfrage senden
+        <span class="btn__spinner" aria-hidden="true"></span>
+      </button>
+      <p class="form-note">* Pflichtfelder</p>
+    </div>
+
+    <div class="form-feedback" id="formSuccess" hidden role="status" aria-live="polite">
+      <h3>Vielen Dank!</h3>
+      <p>Deine Anfrage ist eingegangen. Wir melden uns zeitnah.</p>
+    </div>
+    <div class="form-feedback form-feedback--error" id="formError" hidden role="status" aria-live="polite">
+      <h3>Uups, da ging was schief.</h3>
+      <p>Bitte später nochmal versuchen oder <a href="/kontakt">Kontakt aufnehmen</a>.</p>
+    </div>
+  </form>
+</section>
