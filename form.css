@@ -80,6 +80,7 @@
   
   .form-feedback { margin-top: 12px; background: var(--success-bg); border: 1px solid var(--success-bd); color: var(--success-fg); padding: 10px; border-radius: var(--radius-sm); }
   .form-feedback--error { background: #fef2f2; border-color: #fee2e2; color: #7f1d1d; }
+  .form-info { margin: 10px 0 12px; background: #fff7ed; border: 1px solid #ffedd5; color: #7c2d12; padding: 10px; border-radius: var(--radius-sm); }
 
   /* Dropdown (Details/Summary) */
   .zam-apply__toggle { margin: 8px 0 12px; }

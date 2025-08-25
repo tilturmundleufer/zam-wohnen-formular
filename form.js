@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
           latest_move_in: 'Spätester Einzug',
           pets: 'Haustiere',
           smoker: 'Rauchen',
-          wbs: 'WBS vorhanden',
+          
           parking: 'Parkmöglichkeit',
           budget: 'Monatl. Budget (Warmmiete)',
           how_did_you_hear: 'Wie hast du uns gefunden?',
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
           employment: ['Bitte wählen','Angestellt (unbefristet)','Angestellt (befristet)','Selbstständig/Freiberuflich','Studierend/Auszubildend','Sonstiges'],
           pets: ['Bitte wählen','Nein','Ja'],
           smoker: ['Bitte wählen','Nein','Ja'],
-          wbs: ['Bitte wählen','Nein','Ja'],
+          
           parking: ['Bitte wählen','Kein Bedarf','Außenstellplatz','Tiefgarage'],
           how_did_you_hear: ['Bitte wählen','Website','Immobilienscout24','Immowelt','Empfehlung','Social Media','Sonstiges']
         },
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
           latest_move_in: 'Latest move-in',
           pets: 'Pets',
           smoker: 'Smoking',
-          wbs: 'Housing entitlement certificate',
+          
           parking: 'Parking',
           budget: 'Monthly budget (warm rent)',
           how_did_you_hear: 'How did you hear about us?',
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
           employment: ['Please choose','Employed (permanent)','Employed (fixed-term)','Self-employed/Freelance','Student/Apprentice','Other'],
           pets: ['Please choose','No','Yes'],
           smoker: ['Please choose','No','Yes'],
-          wbs: ['Please choose','No','Yes'],
+          
           parking: ['Please choose','No need','Outdoor space','Underground parking'],
           how_did_you_hear: ['Please choose','Website','Immobilienscout24','Immowelt','Recommendation','Social media','Other']
         },
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setLabel('latest_move_in', t.labels.latest_move_in);
       setLabel('pets', t.labels.pets);
       setLabel('smoker', t.labels.smoker);
-      setLabel('wbs', t.labels.wbs);
+      
       setLabel('parking', t.labels.parking);
       setLabel('budget', t.labels.budget);
       setLabel('how_did_you_hear', t.labels.how_did_you_hear);
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       setSelect('pets', t.selects.pets);
       setSelect('smoker', t.selects.smoker);
-      setSelect('wbs', t.selects.wbs);
+      
       setSelect('parking', t.selects.parking);
       setSelect('how_did_you_hear', t.selects.how_did_you_hear);
       // Buttons & Notes
@@ -611,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
             latest_move_in:   FORM.latest_move_in?.value || '',
             pets:       FORM.pets?.value || '',
             smoker:     FORM.smoker?.value || '',
-            wbs:        FORM.wbs?.value || '',
+            
             parking:    FORM.parking?.value || '',
             
             how_did_you_hear: FORM.how_did_you_hear?.value || '',
