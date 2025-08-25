@@ -217,6 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const title = q('.zam-apply__title'); if (title) title.textContent = t.title;
       const subtitle = q('.zam-apply__subtitle'); if (subtitle) subtitle.textContent = t.subtitle;
       const summary = q('.zam-apply__toggle summary'); if (summary) summary.lastChild && summary.lastChild.nodeType === 3 && (summary.lastChild.textContent = (LANG==='en'?'Open form':'Formular ausklappen'));
+      // Gruppenüberschriften (optional vorhanden)
+      const setH = (id, de, en) => { const h = q('#'+id); if (h) h.textContent = (LANG==='en'? en : de); };
+      setH('grp-contact', 'Kontakt', 'Contact');
+      setH('grp-move', 'Einzug', 'Move-in');
+      setH('grp-household', 'Haushalt & Einkommen', 'Household & income');
+      setH('grp-address', 'Adresse', 'Address');
+      setH('grp-prefs', 'Präferenzen', 'Preferences');
+      setH('grp-notes', 'Zusatzinformationen', 'Additional information');
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
       setLabel('full_name', t.labels.full_name);
