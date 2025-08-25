@@ -37,14 +37,17 @@
   .tag { display: inline-flex; align-items: center; padding: .35rem .6rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); font-size: .92rem; }
   .tag--highlight { background: color-mix(in srgb, var(--brand-accent) 15%, #fff); border-color: color-mix(in srgb, var(--brand-accent) 30%, #eef0f4); }
   
-  .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.8vw, 18px); box-shadow: var(--shadow-1); }
-  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.6vw, 16px); box-shadow: var(--shadow-1); }
+  .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; align-items: start; }
   .field--full { grid-column: 1 / -1; }
+  .field--half { grid-column: span 2; }
+  .field--two-thirds { grid-column: span 2; }
+  .field--third { grid-column: span 1; }
   
-  .field label { display: block; font-weight: 600; margin: 0 0 .3rem; }
+  .field label { display: block; font-weight: 600; margin: 0 0 .25rem; }
   .field input, .field select, .field textarea {
     width: 100%; border: 1px solid var(--input-bd); background: var(--input-bg);
-    border-radius: 12px; padding: .6rem .75rem; font: inherit; color: inherit;
+    border-radius: 12px; padding: .5rem .7rem; font: inherit; color: inherit;
     transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
   }
   .field input:focus, .field select:focus, .field textarea:focus {
@@ -94,11 +97,15 @@
   @media (max-width: 880px) {
     .zam-apply__facts { grid-template-columns: repeat(3, minmax(0,1fr)); }
   }
+  @media (max-width: 880px) {
+    .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .field--half, .field--two-thirds, .field--full { grid-column: 1 / -1; }
+  }
   @media (max-width: 680px) {
-    .form-grid { grid-template-columns: 1fr; gap: 10px; }
+    .form-grid { grid-template-columns: 1fr; gap: 8px; }
     .zam-apply__facts { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .zam-apply__facts li.wide { grid-column: 1 / -1; }
-    .field input, .field select, .field textarea { padding: .55rem .7rem; }
+    .field input, .field select, .field textarea { padding: .5rem .65rem; }
   }
   
   @media (max-width: 1150px) {
