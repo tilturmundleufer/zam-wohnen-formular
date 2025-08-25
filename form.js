@@ -316,6 +316,28 @@ document.addEventListener('DOMContentLoaded', () => {
       ['grp-notes','viewing_times','co_applicant_names','message','privacy']
     ];
     let currentStep = 0;
+    function isFieldValid(name){
+      const el = getField(name);
+      if (!el) return true;
+      if (el.type === 'checkbox') return !!el.checked;
+      if (!el.value) return false;
+      if (name === 'email') return isEmail(el.value);
+      if (name === 'phone') return isPhoneLike(el.value);
+      return true;
+    }
+    function isStepComplete(idx){
+      const group = GROUPS[idx] || [];
+      const names = group.slice(1);
+      for (const name of names) {
+        if (!REQUIRED.includes(name)) continue;
+        if (!isFieldValid(name)) return false;
+      }
+      return true;
+    }
+    function isFormComplete(){
+      for (const name of REQUIRED) { if (!isFieldValid(name)) return false; }
+      return true;
+    }
     function showStep(idx){
       currentStep = Math.max(0, Math.min(GROUPS.length-1, idx));
       const titles = new Set(GROUPS.map(g=>g[0]));
@@ -331,8 +353,8 @@ document.addEventListener('DOMContentLoaded', () => {
         node.hidden = GROUPS[currentStep].indexOf(name) === -1;
       });
       if (PREV) PREV.disabled = currentStep === 0;
-      if (NEXT) NEXT.hidden = currentStep === GROUPS.length - 1;
-      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1);
+      if (NEXT) NEXT.hidden = true; // Auto-Advance aktiv → Next-Button ausblenden
+      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
     }
     function validateStep(){
       let ok = true; let firstInvalid = null;
@@ -350,6 +372,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (NEXT) NEXT.addEventListener('click', ()=>{ if (validateStep()) showStep(currentStep+1); });
     if (PREV) PREV.addEventListener('click', ()=> showStep(currentStep-1));
+
+    function checkAutoAdvance(){
+      // Update Sichtbarkeit Submit je nach Gesamtstatus
+      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
+      // Auto-Advance solange nicht letzter Step
+      if (currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
+        showStep(currentStep + 1);
+      }
+    }
+    // Auf Eingaben reagieren
+    FORM.addEventListener('input', checkAutoAdvance, { passive: true });
+    FORM.addEventListener('change', checkAutoAdvance, { passive: true });
 
     // ===== Meta aus data-* (vom selben Item) =====
     const meta = {
