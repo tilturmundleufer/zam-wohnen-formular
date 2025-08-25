@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         selects: {
           employment: ['Bitte wählen','Angestellt (unbefristet)','Angestellt (befristet)','Selbstständig/Freiberuflich','Studierend/Auszubildend','Sonstiges'],
-          pets: ['Bitte wählen','Nein','Ja'],
-          smoker: ['Bitte wählen','Nein','Ja'],
+          pets: ['Bitte wählen','Nein','Kleine Haustiere (nach Absprache)'],
+          smoker: ['Bitte wählen','Nein','Ja (nicht erlaubt)'],
           
           parking: ['Bitte wählen','Kein Bedarf','Außenstellplatz','Tiefgarage'],
           how_did_you_hear: ['Bitte wählen','Website','Immobilienscout24','Immowelt','Empfehlung','Social Media','Sonstiges']
@@ -189,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         selects: {
           employment: ['Please choose','Employed (permanent)','Employed (fixed-term)','Self-employed/Freelance','Student/Apprentice','Other'],
-          pets: ['Please choose','No','Yes'],
-          smoker: ['Please choose','No','Yes'],
+          pets: ['Please choose','No','Small pets (upon approval)'],
+          smoker: ['Please choose','No','Yes (not permitted)'],
           
           parking: ['Please choose','No need','Outdoor space','Underground parking'],
           how_did_you_hear: ['Please choose','Website','Immobilienscout24','Immowelt','Recommendation','Social media','Other']
@@ -553,6 +553,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, I18N[LANG].errs.email); if (!firstInvalid) firstInvalid = el; return; }
         if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, I18N[LANG].errs.phone); if (!firstInvalid) firstInvalid = el; return; }
       });
+
+      // Zusätzliche Richtlinien: Rauchen verboten, kleine Haustiere nur nach Absprache
+      const smoker = getField('smoker');
+      if (smoker && /ja/i.test(String(smoker.value))) {
+        ok = false;
+        showError('smoker', LANG==='en' ? 'Smoking is strictly prohibited.' : 'Rauchen ist strikt verboten.');
+        if (!firstInvalid) firstInvalid = smoker;
+      }
 
       // Honeypot
       const hp = q('#website');
