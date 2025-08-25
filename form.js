@@ -327,7 +327,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function isStepComplete(idx){
       const group = GROUPS[idx] || [];
+      const groupId = group[0];
       const names = group.slice(1);
+      // Spezialregel: Im Einzugs-Step erst weiter, wenn ALLE drei Datumsfelder gesetzt sind
+      if (groupId === 'grp-move') {
+        const mustHave = ['move_in','earliest_move_in','latest_move_in'];
+        return mustHave.every(n => {
+          const el = getField(n);
+          return el && !!el.value;
+        });
+      }
       for (const name of names) {
         if (!REQUIRED.includes(name)) continue;
         if (!isFieldValid(name)) return false;
@@ -376,9 +385,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkAutoAdvance(){
       // Update Sichtbarkeit Submit je nach Gesamtstatus
       const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
-      // Auto-Advance solange nicht letzter Step
+      // Auto-Advance nur, wenn alle Felder des aktuellen Steps vollständig sind und sich Werte verändert haben
       if (currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
-        showStep(currentStep + 1);
+        // debounce: kurze Verzögerung, um Fehltrigger bei Fokus zu vermeiden
+        clearTimeout(checkAutoAdvance._t);
+        checkAutoAdvance._t = setTimeout(() => {
+          if (isStepComplete(currentStep)) showStep(currentStep + 1);
+        }, 50);
       }
     }
     // Auf Eingaben reagieren
