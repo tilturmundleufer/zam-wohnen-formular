@@ -60,6 +60,7 @@
   }
   .field .error { min-height: 1.1em; color: #b42318; font-size: .9rem; margin-top: .25rem; }
   .field .help { min-height: 1.1em; color: #6b7280; font-size: .88rem; margin-top: .15rem; }
+  .field.field--center { display: flex; align-items: center; }
   
   .checks .check { display: grid; grid-template-columns: 20px 1fr; gap: .5rem; align-items: start; }
   .checks input[type="checkbox"] { margin-top: .2rem; }
@@ -87,11 +88,17 @@
   /* Dropdown (Details/Summary) */
   .zam-apply__toggle { margin: 8px 0 12px; }
   .zam-apply__toggle summary {
-    list-style: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: .5rem;
+    list-style: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: .6rem;
+    padding: .55rem .8rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .05s ease;
+    color: inherit;
   }
+  .zam-apply__toggle summary:hover { background: #f9fafb; border-color: #e5e7eb; }
+  .zam-apply__toggle summary:active { transform: translateY(1px); }
+  .zam-apply__toggle summary:focus { outline: none; box-shadow: var(--focus-ring); }
   .zam-apply__toggle summary::-webkit-details-marker { display: none; }
   .zam-apply__toggle[open] summary .chev { transform: rotate(90deg); }
-  .chev { width: .8em; height: .8em; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(0deg); display: inline-block; padding: 2px; transition: transform .2s ease; }
+  .chev { width: .9em; height: .9em; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(0deg); display: inline-block; padding: 3px; transition: transform .2s ease; border-radius: 2px; }
 
   /* Mobile Tweaks */
   @media (max-width: 1150px) {
