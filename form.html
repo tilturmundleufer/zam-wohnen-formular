@@ -230,7 +230,12 @@
       </div>
     </div>
 
-    <div class="form-actions">
+    <div class="form-steps-nav" aria-label="Formularnavigation">
+      <button type="button" class="btn btn--secondary" id="prevStepBtn" disabled>Zurück</button>
+      <button type="button" class="btn btn--primary" id="nextStepBtn">Weiter</button>
+    </div>
+
+    <div class="form-actions" hidden>
       <button type="submit" class="btn btn--primary" id="submitBtn">
         Anfrage senden
         <span class="btn__spinner" aria-hidden="true"></span>

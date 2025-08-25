@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Elemente (lokal) =====
     const FORM    = q('#zam-form');
     const SUBMIT  = q('#submitBtn');
+    const NEXT    = q('#nextStepBtn');
+    const PREV    = q('#prevStepBtn');
     const SUCCESS = q('#formSuccess');
     const ERR     = q('#formError');
     if (!FORM) return;
@@ -297,10 +299,57 @@ document.addEventListener('DOMContentLoaded', () => {
       // Buttons & Notes
       const note = q('.form-note'); if (note) note.textContent = t.note;
       if (SUBMIT) SUBMIT.firstChild && (SUBMIT.firstChild.nodeType === 3) && (SUBMIT.firstChild.textContent = t.submit + ' ');
+      if (NEXT) NEXT.textContent = (LANG==='en' ? 'Next' : 'Weiter');
+      if (PREV) PREV.textContent = (LANG==='en' ? 'Back' : 'Zurück');
       // Feedback
       if (SUCCESS) { const h = SUCCESS.querySelector('h3'); const p = SUCCESS.querySelector('p'); if (h) h.textContent = t.success_h3; if (p) p.textContent = t.success_p; }
       if (ERR) { const h = ERR.querySelector('h3'); const p = ERR.querySelector('p'); if (h) h.textContent = t.error_h3; if (p) p.innerHTML = t.error_p; }
     }
+
+    // ===== Multi-Step: Gruppen definieren =====
+    const GROUPS = [
+      ['grp-contact','full_name','email','phone'],
+      ['grp-move','move_in','earliest_move_in','latest_move_in'],
+      ['grp-household','occupants','income','employment'],
+      ['grp-address','street','postal_code','city'],
+      ['grp-prefs','pets','how_did_you_hear','parking'],
+      ['grp-notes','viewing_times','co_applicant_names','message','privacy']
+    ];
+    let currentStep = 0;
+    function showStep(idx){
+      currentStep = Math.max(0, Math.min(GROUPS.length-1, idx));
+      const titles = new Set(GROUPS.map(g=>g[0]));
+      qa('.form-grid > *').forEach(node => {
+        if (node.classList.contains('group-title')) {
+          const h = node.querySelector('h3');
+          node.hidden = !(h && titles.has(h.id) && h.id === GROUPS[currentStep][0]);
+          return;
+        }
+        const input = node.querySelector('input, select, textarea, .check input');
+        if (!input) { node.hidden = true; return; }
+        const name = input.name || input.id;
+        node.hidden = GROUPS[currentStep].indexOf(name) === -1;
+      });
+      if (PREV) PREV.disabled = currentStep === 0;
+      if (NEXT) NEXT.hidden = currentStep === GROUPS.length - 1;
+      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1);
+    }
+    function validateStep(){
+      let ok = true; let firstInvalid = null;
+      const names = GROUPS[currentStep].slice(1);
+      names.forEach(name => {
+        if (!REQUIRED.includes(name)) return;
+        const el = getField(name); if (!el) return;
+        if (el.type === 'checkbox' && !el.checked) { ok = false; showError(name, I18N[LANG].errs.required); if (!firstInvalid) firstInvalid = el; return; }
+        if (!el.value && el.type !== 'checkbox') { ok = false; showError(name, I18N[LANG].errs.required); if (!firstInvalid) firstInvalid = el; return; }
+        if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, I18N[LANG].errs.email); if (!firstInvalid) firstInvalid = el; return; }
+        if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, I18N[LANG].errs.phone); if (!firstInvalid) firstInvalid = el; return; }
+      });
+      if (!ok && firstInvalid && typeof firstInvalid.focus === 'function') firstInvalid.focus();
+      return ok;
+    }
+    if (NEXT) NEXT.addEventListener('click', ()=>{ if (validateStep()) showStep(currentStep+1); });
+    if (PREV) PREV.addEventListener('click', ()=> showStep(currentStep-1));
 
     // ===== Meta aus data-* (vom selben Item) =====
     const meta = {
@@ -683,5 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial i18n anwenden & dynamische Felder einfügen
     applyI18n();
     renderExtraFields();
+    // Multi-Step initial anzeigen
+    showStep(0);
   });
 });
