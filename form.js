@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ['grp-household','occupants','income','employment'],
       ['grp-address','street','postal_code','city'],
       ['grp-prefs','pets','how_did_you_hear','parking'],
-      ['grp-notes','viewing_times','co_applicant_names','message','privacy']
+      ['grp-notes','viewing_times','privacy']
     ];
     let currentStep = 0;
     function isFieldValid(name){
@@ -752,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
             occupants:  FORM.occupants?.value || '',
             income:     FORM.income?.value || '',
             employment: FORM.employment?.value || '',
-            message:    (FORM.message?.value || '').trim(),
+            
             street:     (FORM.street?.value || '').trim(),
             postal_code: (FORM.postal_code?.value || '').trim(),
             city:       (FORM.city?.value || '').trim(),
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             how_did_you_hear: FORM.how_did_you_hear?.value || '',
             viewing_times: (FORM.viewing_times?.value || '').trim(),
-            co_applicant_names: (FORM.co_applicant_names?.value || '').trim(),
+            
             privacy:    !!FORM.privacy?.checked,
             page_url:   hf('page_url')?.value || '',
             utm_source: hf('utm_source')?.value || '',
