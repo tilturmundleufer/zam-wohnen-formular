@@ -356,9 +356,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateControlsVisibility(){
       const isFirst = currentStep === 0;
       const isLast = currentStep === GROUPS.length - 1;
-      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
       if (PREV) { PREV.hidden = isFirst; PREV.disabled = isFirst; }
-      if (NEXT) { NEXT.hidden = isLast || stepHasRequired; }
+      // Wunsch: "Weiter" immer zeigen, außer im letzten Step
+      if (NEXT) { NEXT.hidden = isLast; }
       const actions = q('.form-actions');
       const showSubmit = isLast && isFormComplete();
       if (actions) actions.hidden = !showSubmit;
@@ -400,16 +400,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (NEXT) NEXT.addEventListener('click', ()=>{ if (validateStep()) showStep(currentStep+1); });
     if (PREV) PREV.addEventListener('click', ()=> showStep(currentStep-1));
 
+    let lastInteractedStep = null;
+    function getStepIndexForField(name){
+      for (let i=0;i<GROUPS.length;i++) { if (GROUPS[i].includes(name)) return i; }
+      return null;
+    }
     function checkAutoAdvance(){
       // Update Sichtbarkeit für alle Controls
       updateControlsVisibility();
       // Auto-Advance nur für Steps MIT Pflichtfeldern
       const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
-      if (stepHasRequired && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
+      if (lastInteractedStep === currentStep && stepHasRequired && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
         // debounce: kurze Verzögerung, um Fehltrigger bei Fokus zu vermeiden
         clearTimeout(checkAutoAdvance._t);
         checkAutoAdvance._t = setTimeout(() => {
-          if (isStepComplete(currentStep)) showStep(currentStep + 1);
+          if (lastInteractedStep === currentStep && isStepComplete(currentStep)) showStep(currentStep + 1);
         }, 50);
       }
     }
@@ -424,17 +429,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (t.tagName === 'SELECT' || t.type === 'checkbox' || t.type === 'date') {
         markConfirmed(name);
       }
+      lastInteractedStep = getStepIndexForField(name);
       checkAutoAdvance();
     }, { passive: true });
     FORM.addEventListener('keydown', (e)=>{
       if (e.key === 'Enter') {
-        const t = e.target; const name = t?.name || t?.id; if (name) markConfirmed(name);
+        const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
         e.preventDefault(); // Enter soll nicht submitten zwischen Steps
         checkAutoAdvance();
       }
     });
     FORM.addEventListener('blur', (e)=>{
-      const t = e.target; const name = t?.name || t?.id; if (name) markConfirmed(name);
+      const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
       checkAutoAdvance();
     }, true);
 
