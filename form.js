@@ -366,7 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
         node.hidden = GROUPS[currentStep].indexOf(name) === -1;
       });
       if (PREV) PREV.disabled = currentStep === 0;
-      if (NEXT) NEXT.hidden = true; // Auto-Advance aktiv → Next-Button ausblenden
+      // Next-Button nur einblenden, wenn der Step KEINE Pflichtfelder hat (damit Nutzer bewusst weitergehen kann)
+      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
+      if (NEXT) NEXT.hidden = stepHasRequired; // hat Pflichten -> verstecken, sonst zeigen
       const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
     }
     function validateStep(){
@@ -389,8 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkAutoAdvance(){
       // Update Sichtbarkeit Submit je nach Gesamtstatus
       const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
-      // Auto-Advance nur, wenn alle Felder des aktuellen Steps vollständig sind und sich Werte verändert haben
-      if (currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
+      // Auto-Advance nur für Steps MIT Pflichtfeldern
+      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
+      if (stepHasRequired && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
         // debounce: kurze Verzögerung, um Fehltrigger bei Fokus zu vermeiden
         clearTimeout(checkAutoAdvance._t);
         checkAutoAdvance._t = setTimeout(() => {
