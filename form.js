@@ -353,6 +353,20 @@ document.addEventListener('DOMContentLoaded', () => {
       for (const name of REQUIRED) { if (!isFieldConfirmed(name)) return false; }
       return true;
     }
+    function updateControlsVisibility(){
+      const isFirst = currentStep === 0;
+      const isLast = currentStep === GROUPS.length - 1;
+      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
+      if (PREV) { PREV.hidden = isFirst; PREV.disabled = isFirst; }
+      if (NEXT) { NEXT.hidden = isLast || stepHasRequired; }
+      const actions = q('.form-actions');
+      const showSubmit = isLast && isFormComplete();
+      if (actions) actions.hidden = !showSubmit;
+      if (SUBMIT) SUBMIT.hidden = !showSubmit;
+      const NAV = q('.form-steps-nav');
+      if (NAV) NAV.hidden = (!!PREV?.hidden) && (!!NEXT?.hidden);
+    }
+
     function showStep(idx){
       currentStep = Math.max(0, Math.min(GROUPS.length-1, idx));
       const titles = new Set(GROUPS.map(g=>g[0]));
@@ -367,14 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = input.name || input.id;
         node.hidden = GROUPS[currentStep].indexOf(name) === -1;
       });
-      // Prev/Nächst Sichtbarkeit
-      const isFirst = currentStep === 0;
-      const isLast = currentStep === GROUPS.length - 1;
-      if (PREV) { PREV.hidden = isFirst; PREV.disabled = isFirst; }
-      // Next-Button nur einblenden, wenn der Step KEINE Pflichtfelder hat und nicht letzter Step
-      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
-      if (NEXT) NEXT.hidden = isLast || stepHasRequired;
-      const actions = q('.form-actions'); if (actions) actions.hidden = !(isLast && isFormComplete());
+      updateControlsVisibility();
     }
     function validateStep(){
       let ok = true; let firstInvalid = null;
@@ -394,8 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (PREV) PREV.addEventListener('click', ()=> showStep(currentStep-1));
 
     function checkAutoAdvance(){
-      // Update Sichtbarkeit Submit je nach Gesamtstatus
-      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
+      // Update Sichtbarkeit für alle Controls
+      updateControlsVisibility();
       // Auto-Advance nur für Steps MIT Pflichtfeldern
       const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
       if (stepHasRequired && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
