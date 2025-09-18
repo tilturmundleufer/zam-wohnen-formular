@@ -325,6 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (name === 'phone') return isPhoneLike(el.value);
       return true;
     }
+    // Tracke pro Feld, ob der Benutzer die Eingabe bewusst "bestätigt" hat
+    const confirmed = new Set();
+    function markConfirmed(name){ if (!name) return; confirmed.add(name); }
+    function isFieldConfirmed(name){ return confirmed.has(name); }
     function isStepComplete(idx){
       const group = GROUPS[idx] || [];
       const groupId = group[0];
@@ -339,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       for (const name of names) {
         if (!REQUIRED.includes(name)) continue;
-        if (!isFieldValid(name)) return false;
+        if (!isFieldValid(name) || !isFieldConfirmed(name)) return false;
       }
       return true;
     }
@@ -396,7 +400,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Auf Eingaben reagieren
     FORM.addEventListener('input', checkAutoAdvance, { passive: true });
-    FORM.addEventListener('change', checkAutoAdvance, { passive: true });
+    FORM.addEventListener('change', (e)=>{
+      const t = e.target;
+      if (!t) return;
+      const name = t.name || t.id;
+      if (!name) return;
+      // Bestätigung: bei Enter, Blur, Auswahl von Selects, und bei Date nach Change
+      if (t.tagName === 'SELECT' || t.type === 'checkbox' || t.type === 'date') {
+        markConfirmed(name);
+      }
+      checkAutoAdvance();
+    }, { passive: true });
+    FORM.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter') {
+        const t = e.target; const name = t?.name || t?.id; if (name) markConfirmed(name);
+        e.preventDefault(); // Enter soll nicht submitten zwischen Steps
+        checkAutoAdvance();
+      }
+    });
+    FORM.addEventListener('blur', (e)=>{
+      const t = e.target; const name = t?.name || t?.id; if (name) markConfirmed(name);
+      checkAutoAdvance();
+    }, true);
+
+    // Progressbar aktualisieren
+    const PROG = q('#progressBar');
+    function updateProgress(){
+      const pct = Math.round(((currentStep) / (GROUPS.length - 1)) * 100);
+      if (PROG) {
+        PROG.style.width = pct + '%';
+        PROG.setAttribute('aria-valuenow', String(pct));
+      }
+    }
+    const showStepOrig = showStep;
+    showStep = function(idx){
+      showStepOrig(idx);
+      updateProgress();
+    };
 
     // ===== Meta aus data-* (vom selben Item) =====
     const meta = {

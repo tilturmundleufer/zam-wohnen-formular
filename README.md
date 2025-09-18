@@ -20,3 +20,4 @@ Dynamisches, barrierearmes Bewerbungsformular für Webflow CMS mit RTE-basierten
 - Make.com Webhook, der JSON akzeptiert
 
 Weitere Details siehe `DOKUMENTATION.md`.
+

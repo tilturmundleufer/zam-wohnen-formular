@@ -38,6 +38,8 @@
   .tag--highlight { background: color-mix(in srgb, var(--brand-accent) 15%, #fff); border-color: color-mix(in srgb, var(--brand-accent) 30%, #eef0f4); }
   
   .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.6vw, 16px); box-shadow: var(--shadow-1); }
+  .form-progress { position: relative; height: 6px; background: #f3f4f6; border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
+  .form-progress__bar { height: 100%; width: 0%; background: var(--brand-accent); border-radius: 999px; transition: width .25s ease; }
   .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; align-items: start; }
   .field--full { grid-column: 1 / -1; }
   .field--half { grid-column: span 2; }
