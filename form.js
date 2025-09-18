@@ -576,16 +576,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = WRAP.closest('.collection-item') || WRAP;
     const rte = container.querySelector('.rte-ausstattung-source'); // gebundener, unsichtbarer RTE
 
-    // Tags-Container lokal besorgen ODER erzeugen
-    let tagsWrap = q('#featureTags');
-    if (!tagsWrap) {
-      // Falls der Container fehlt, lege ihn im Header an
-      const header = q('.zam-apply__header') || WRAP;
-      tagsWrap = document.createElement('div');
-      tagsWrap.className = 'zam-apply__tags';
-      tagsWrap.id = 'featureTags';
-      header.appendChild(tagsWrap);
-    }
+    // Amenities-Liste (Dropdown)
+    const amenitiesList = q('#amenitiesList');
 
     // Normalisierung für Dedupe (verhindert 2x/3x gleiche Tags)
     const norm = (s) => {
@@ -599,28 +591,19 @@ document.addEventListener('DOMContentLoaded', () => {
         .toLowerCase();
     };
 
-    function addTag(text) {
+    function addAmenity(text) {
       const raw = (text || '').trim();
-      if (!raw || !tagsWrap) return;
-      const el = document.createElement('span');
-      const lower = raw.toLowerCase();
-      const highlight =
-        lower.includes('barriere') ||
-        lower.includes('ebk') ||
-        lower.includes('einbauküche') ||
-        lower.includes('balkon') ||
-        lower.includes('terrasse') ||
-        lower.includes('loggia');
-      el.className = 'tag' + (highlight ? ' tag--highlight' : '');
-      el.textContent = raw;
-      tagsWrap.appendChild(el);
+      if (!raw || !amenitiesList) return;
+      const li = document.createElement('li');
+      li.textContent = raw;
+      amenitiesList.appendChild(li);
     }
 
     (function renderAmenitiesFromRTE(){
-      if (!tagsWrap) return;          // Safety
-      tagsWrap.replaceChildren();     // vor jedem Render leeren
+      if (!amenitiesList) return;     // Safety
+      amenitiesList.replaceChildren();
 
-      if (!rte) return;               // kein RTE im Item → keine Tags
+      if (!rte) return;               // kein RTE → keine Liste
 
       let items = [];
 
@@ -652,8 +635,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!key || key.length < 2) return;
         if (seen.has(key)) return;
         seen.add(key);
-        addTag(s.replace(/\s+/g, ' ').trim());
+        addAmenity(s.replace(/\s+/g, ' ').trim());
       });
+    })();
+
+    // ===== Bild aus CMS binden =====
+    (function bindUnitImage(){
+      const img = q('#unitImage');
+      if (!img) return;
+      // Versuche, Bild-URL aus data-Attribut zu lesen, sonst aus CMS-Umfeld
+      const dataSrc = WRAP.dataset.imageUrl || WRAP.dataset.image || '';
+      if (dataSrc) {
+        img.src = dataSrc;
+        return;
+      }
+      // Fallback: in der umgebenden Collection nach einem Bild suchen
+      const container = WRAP.closest('.collection-item') || WRAP.parentElement || document;
+      const cmsImg = container.querySelector('img.rte-image, .unit-main-image img, .w-dyn-item img, .w-richtext img');
+      if (cmsImg && cmsImg.src) {
+        img.src = cmsImg.src;
+      } else {
+        // Wenn nichts gefunden: Bildcontainer verstecken
+        const wrap = img.closest('.zam-apply__image');
+        if (wrap) wrap.style.display = 'none';
+      }
     })();
 
     // ===== Hidden-Felder (lokal) =====

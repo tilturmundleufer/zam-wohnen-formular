@@ -29,6 +29,8 @@
   .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: var(--brand-bg); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); }
   .zam-apply__title { margin: 0 0 .25rem; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.2; }
   .zam-apply__subtitle { margin: 0 0 .75rem; opacity: .85; }
+  .zam-apply__image { margin: 0 0 .75rem; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); }
+  .zam-apply__image img { display: block; width: 100%; height: clamp(160px, 30vw, 320px); object-fit: cover; }
   
   .zam-apply__facts { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; list-style: none; padding: 0; margin: .75rem 0 1rem; }
   .zam-apply__facts li { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius-sm); padding: .6rem .75rem; display: flex; justify-content: space-between; gap: .5rem; min-width: 0; }
@@ -36,9 +38,20 @@
   .zam-apply__facts span { opacity: .7; }
   .zam-apply__facts strong { font-weight: 700; }
   
-  .zam-apply__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .tag { display: inline-flex; align-items: center; padding: .35rem .6rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); font-size: .92rem; }
-  .tag--highlight { background: color-mix(in srgb, var(--brand-accent) 15%, #fff); border-color: color-mix(in srgb, var(--brand-accent) 30%, #eef0f4); }
+  /* Amenities Dropdown */
+  .zam-apply__amenities { margin: .5rem 0 1rem; }
+  .zam-apply__amenities summary {
+    list-style: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: .6rem;
+    padding: .55rem .8rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .05s ease; color: inherit;
+  }
+  .zam-apply__amenities summary::-webkit-details-marker { display: none; }
+  .zam-apply__amenities summary:hover { background: #f9fafb; border-color: #e5e7eb; }
+  .zam-apply__amenities[open] summary .chev { transform: rotate(90deg); }
+  .amenities-list { list-style: none; padding: .6rem 0 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .amenities-list li { display: flex; align-items: flex-start; gap: .5rem; background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius-sm); padding: .55rem .75rem; box-shadow: var(--shadow-1); }
+  .amenities-list li::before { content: ""; flex: 0 0 .6rem; height: .6rem; margin-top: .35rem; border-radius: 50%; background: color-mix(in srgb, var(--brand-accent) 55%, #a5b4fc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 20%, transparent); }
+  @media (max-width: 680px) { .amenities-list { grid-template-columns: 1fr; } }
   
   .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.6vw, 16px); box-shadow: var(--shadow-1); }
   .form-progress { position: relative; height: 6px; background: #f3f4f6; border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
