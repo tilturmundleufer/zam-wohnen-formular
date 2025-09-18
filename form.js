@@ -349,6 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function isFormComplete(){
       for (const name of REQUIRED) { if (!isFieldValid(name)) return false; }
+      // zusätzlich: alle Pflichtfelder müssen bestätigt sein
+      for (const name of REQUIRED) { if (!isFieldConfirmed(name)) return false; }
       return true;
     }
     function showStep(idx){
@@ -365,11 +367,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = input.name || input.id;
         node.hidden = GROUPS[currentStep].indexOf(name) === -1;
       });
-      if (PREV) PREV.disabled = currentStep === 0;
-      // Next-Button nur einblenden, wenn der Step KEINE Pflichtfelder hat (damit Nutzer bewusst weitergehen kann)
+      // Prev/Nächst Sichtbarkeit
+      const isFirst = currentStep === 0;
+      const isLast = currentStep === GROUPS.length - 1;
+      if (PREV) { PREV.hidden = isFirst; PREV.disabled = isFirst; }
+      // Next-Button nur einblenden, wenn der Step KEINE Pflichtfelder hat und nicht letzter Step
       const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
-      if (NEXT) NEXT.hidden = stepHasRequired; // hat Pflichten -> verstecken, sonst zeigen
-      const actions = q('.form-actions'); if (actions) actions.hidden = !(currentStep === GROUPS.length - 1 && isFormComplete());
+      if (NEXT) NEXT.hidden = isLast || stepHasRequired;
+      const actions = q('.form-actions'); if (actions) actions.hidden = !(isLast && isFormComplete());
     }
     function validateStep(){
       let ok = true; let firstInvalid = null;
