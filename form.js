@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (actions) actions.hidden = !showSubmit;
       if (SUBMIT) SUBMIT.hidden = !showSubmit;
       const NAV = q('.form-steps-nav');
-      if (NAV) NAV.hidden = (!!PREV?.hidden) && (!!NEXT?.hidden);
+      if (NAV) NAV.hidden = (!!(PREV && PREV.hidden)) && (!!(NEXT && NEXT.hidden));
     }
 
     function showStep(idx){

@@ -22,6 +22,9 @@
     --disabled-opacity: .6;
   }
   
+  /* Force-hide any element with the hidden attribute (in case global CSS overrides UA styles) */
+  [hidden] { display: none !important; }
+  
   /* ============== Layout ============== */
   .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: var(--brand-bg); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); }
   .zam-apply__title { margin: 0 0 .25rem; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.2; }
