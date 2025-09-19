@@ -85,6 +85,23 @@
   .field .help { min-height: 1.1em; color: #6b7280; font-size: .88rem; margin-top: .15rem; }
   .field.field--center { display: flex; align-items: center; }
   
+  /* Datepicker: moderner Stil */
+  .field input[type="date"] {
+    min-height: 42px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="%23fa4616" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></g></svg>');
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 18px 18px;
+    padding-right: 2.2rem;
+  }
+  .field input[type="date"]:hover { border-color: color-mix(in srgb, var(--brand-accent) 25%, var(--input-bd)); }
+  /* WebKit: Standard-Icon unsichtbar, aber klickbar lassen */
+  .field input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; width: 22px; height: 22px; cursor: pointer; }
+  /* WebKit: Innenleben etwas kompakter */
+  .field input[type="date"]::-webkit-datetime-edit { padding: .15rem 0; }
+  .field input[type="date"]::-webkit-inner-spin-button,
+  .field input[type="date"]::-webkit-clear-button { display: none; }
+
   .checks .check { display: grid; grid-template-columns: 20px 1fr; gap: .5rem; align-items: start; }
   .checks input[type="checkbox"] { margin-top: .2rem; }
   
