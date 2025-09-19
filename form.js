@@ -632,6 +632,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'handtuchheizkörper': 'Weitere Ausstattung',
       'sanitär': 'Sanitär',
       'duschkabine': 'Duschkabine',
+      'zweite abtrennung': 'Duschkabine',
+      'abtrennung': 'Duschkabine',
+      'zweite duschkabine': 'Duschkabine',
       'bad/wc': 'Bad/WC',
       'bad': 'Bad/WC',
       'wc': 'Bad/WC'
@@ -679,6 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
         out = out.replace(/\b(\d{2,3})(?!\s*[x×])\b/g, (m, n) => `${n} x ${n} cm`);
         out = out.replace(/Eck-?\/?Fronteinstieg/gi, 'Eck- und Fronteinstieg');
         out = out.replace(/Eckeinstieg\s+/gi, '');
+        out = out.replace(/\s-\s/g, ' – ');
       }
       // Bad/WC: bei Menge > 1 → 'Bad' → 'Bäder'
       if (/^bad\/wc$/i.test(key)) {
