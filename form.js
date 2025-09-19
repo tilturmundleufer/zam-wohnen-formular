@@ -629,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'boden': 'Boden',
       'bodenbelag': 'Boden',
       'lüftung': 'Lüftung',
-      'handtuchheizkörper': 'Handtuchheizkörper',
+      'handtuchheizkörper': 'Weitere Ausstattung',
       'sanitär': 'Sanitär',
       'duschkabine': 'Duschkabine',
       'bad/wc': 'Bad/WC',
@@ -672,6 +672,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return rows;
     }
 
+    function formatValueByKey(key, value){
+      let out = value || '';
+      // Duschkabine: 90 → 90 x 90 cm; Eck-/Fronteinstieg → Eck- und Fronteinstieg
+      if (/^duschkabine$/i.test(key)) {
+        out = out.replace(/\b(\d{2,3})(?!\s*[x×])\b/g, (m, n) => `${n} x ${n} cm`);
+        out = out.replace(/Eck-?\/?Fronteinstieg/gi, 'Eck- und Fronteinstieg');
+        out = out.replace(/Eckeinstieg\s+/gi, '');
+      }
+      // Bad/WC: bei Menge > 1 → 'Bad' → 'Bäder'
+      if (/^bad\/wc$/i.test(key)) {
+        const numMatch = out.match(/(\d+[\.,]?\d*)/);
+        const num = numMatch ? parseFloat(String(numMatch[1]).replace(',', '.')) : NaN;
+        if (!isNaN(num) && num > 1) {
+          out = out.replace(/\bBad\b/g, 'Bäder');
+        }
+      }
+      return out;
+    }
+
     function addAmenityKV(key, value){
       if (!amenitiesList) return;
       const li = document.createElement('li');
@@ -693,14 +712,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const rows = parseAmenitiesPairs(textAll);
 
       if (rows && rows.length) {
-        const seen = new Set();
+        const acc = new Map(); // key -> Set of values
         rows.forEach(({ key, value }) => {
-          const nkey = normalize(key).toLowerCase();
-          const nval = normalize(value).toLowerCase();
-          const sig = nkey + '|' + nval;
-          if (!nkey || !nval || seen.has(sig)) return;
-          seen.add(sig);
-          addAmenityKV(key, value);
+          const k = (key || '').trim();
+          let v = formatValueByKey(k, value || '');
+          const nkey = normalize(k).toLowerCase();
+          const nval = normalize(v).toLowerCase();
+          if (!nkey || !nval) return;
+          if (!acc.has(k)) acc.set(k, new Set());
+          acc.get(k).add(v);
+        });
+        acc.forEach((set, k) => {
+          const joined = Array.from(set.values()).join(', ');
+          addAmenityKV(k, joined);
         });
         return;
       }
