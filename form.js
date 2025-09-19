@@ -614,11 +614,71 @@ document.addEventListener('DOMContentLoaded', () => {
         .toLowerCase();
     };
 
-    function addAmenity(text) {
-      const raw = (text || '').trim();
-      if (!raw || !amenitiesList) return;
+    // === Ausstattung: strukturierte Erkennung (Kategorie: Wert; ...) ===
+    const KEY_MAP = {
+      'einbauküche': 'Einbauküche',
+      'ebk': 'Einbauküche',
+      'balkon/loggia/terrasse': 'Außenbereich',
+      'balkon': 'Außenbereich',
+      'loggia': 'Außenbereich',
+      'terrasse': 'Außenbereich',
+      'außenliegender sonnenschutz': 'Sonnenschutz',
+      'sonnenschutz': 'Sonnenschutz',
+      'heizung': 'Heizung',
+      'fußbodenheizung': 'Heizung',
+      'boden': 'Boden',
+      'bodenbelag': 'Boden',
+      'lüftung': 'Lüftung',
+      'handtuchheizkörper': 'Handtuchheizkörper',
+      'sanitär': 'Sanitär',
+      'duschkabine': 'Duschkabine',
+      'bad/wc': 'Bad/WC',
+      'bad': 'Bad/WC',
+      'wc': 'Bad/WC'
+    };
+
+    const normalize = (s) => (s || '')
+      .replace(/\u00A0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const canonicalizeKey = (rawKey) => {
+      const k = normalize(String(rawKey).toLowerCase());
+      return KEY_MAP[k] || (rawKey || '').trim();
+    };
+
+    function parseAmenitiesPairs(text){
+      const rows = [];
+      if (!text) return rows;
+      // Teile an ";" oder Zeilenumbrüchen
+      const parts = text.split(/;|\n/).map(p => normalize(p)).filter(Boolean);
+      for (const part of parts) {
+        const idx = part.indexOf(':');
+        if (idx === -1) {
+          // freies Tag
+          rows.push({ key: 'Ausstattung', value: part });
+          continue;
+        }
+        const left = part.slice(0, idx);
+        const right = normalize(part.slice(idx+1));
+        let key = canonicalizeKey(left);
+        let value = right;
+        // Spezialfall Außenbereich
+        if (/balkon\/?loggia\/?terrasse/i.test(left)) {
+          key = 'Außenbereich';
+        }
+        rows.push({ key, value });
+      }
+      return rows;
+    }
+
+    function addAmenityKV(key, value){
+      if (!amenitiesList) return;
       const li = document.createElement('li');
-      li.textContent = raw;
+      const k = document.createElement('span'); k.className = 'amenity-key'; k.textContent = key;
+      const sep = document.createElement('span'); sep.className = 'amenity-sep'; sep.textContent = ' – ';
+      const v = document.createElement('span'); v.className = 'amenity-value'; v.textContent = value;
+      li.appendChild(k); li.appendChild(sep); li.appendChild(v);
       amenitiesList.appendChild(li);
     }
 
@@ -628,6 +688,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!rte) return;               // kein RTE → keine Liste
 
+      // 0) Versuche strukturierte Paare zu parsen
+      const textAll = normalize(rte.innerText || '');
+      const rows = parseAmenitiesPairs(textAll);
+
+      if (rows && rows.length) {
+        const seen = new Set();
+        rows.forEach(({ key, value }) => {
+          const nkey = normalize(key).toLowerCase();
+          const nval = normalize(value).toLowerCase();
+          const sig = nkey + '|' + nval;
+          if (!nkey || !nval || seen.has(sig)) return;
+          seen.add(sig);
+          addAmenityKV(key, value);
+        });
+        return;
+      }
+
+      // 1) Fallback: Listeneinträge priorisieren und als reine Zeilen rendern
       let items = [];
 
       // 1) Listeneinträge priorisieren

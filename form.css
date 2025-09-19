@@ -52,8 +52,10 @@
 .zam-apply__amenities[open] summary { background: color-mix(in srgb, var(--brand-accent) 8%, #fff); border-color: color-mix(in srgb, var(--brand-accent) 35%, #eef0f4); }
 .zam-apply__amenities[open] summary .chev { transform: rotate(90deg); }
   .amenities-list { list-style: none; padding: .6rem 0 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
-  .amenities-list li { display: flex; align-items: flex-start; gap: .5rem; background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius-sm); padding: .55rem .75rem; box-shadow: var(--shadow-1); }
-  .amenities-list li::before { content: ""; flex: 0 0 .6rem; height: .6rem; margin-top: .35rem; border-radius: 50%; background: color-mix(in srgb, var(--brand-accent) 55%, #a5b4fc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 20%, transparent); }
+  .amenities-list li { display: flex; align-items: flex-start; gap: .25rem; background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius-sm); padding: .55rem .75rem; box-shadow: var(--shadow-1); }
+  .amenity-key { font-weight: 700; }
+  .amenity-sep { opacity: .6; padding: 0 .15rem; }
+  .amenity-value { opacity: .95; }
   @media (max-width: 680px) { .amenities-list { grid-template-columns: 1fr; } }
   
   .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.6vw, 16px); box-shadow: var(--shadow-1); }
