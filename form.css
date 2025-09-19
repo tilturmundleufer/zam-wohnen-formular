@@ -163,7 +163,7 @@
   .zam-apply__toggle summary:focus { outline: none; box-shadow: var(--focus-ring); }
   .zam-apply__toggle summary::-webkit-details-marker { display: none; }
   .zam-apply__toggle[open] summary { filter: none; }
-  .zam-apply__toggle[open] summary .chev { transform: rotate(90deg); }
+  /* kein Chevron mehr */
 .chev { width: 1em; height: 1em; display: inline-block; background-color: currentColor; transition: transform .2s ease, opacity .2s ease; opacity: .9;
   -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
           mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;
