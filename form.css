@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
 [data-theme="zam"] {
     --brand-primary: #0d2440;
     --brand-accent:  #fa4616;
@@ -26,7 +28,7 @@
   [hidden] { display: none !important; }
   
   /* ============== Layout ============== */
-  .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: linear-gradient(180deg, #fff 0%, var(--brand-bg) 100%); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); }
+  .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: linear-gradient(180deg, #fff 0%, var(--brand-bg) 100%); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
   .zam-apply__title { margin: 0 0 .25rem; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.2; }
   .zam-apply__subtitle { margin: 0 0 .75rem; opacity: .85; }
   .zam-apply__image { margin: 0 0 .75rem; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); }
