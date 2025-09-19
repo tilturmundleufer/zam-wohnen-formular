@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Config =====
     const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/YOUR_MAKE_WEBHOOK_URL';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
+    const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL) && !MAKE_WEBHOOK_URL.includes('YOUR_MAKE_WEBHOOK_URL');
     const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
@@ -801,14 +802,40 @@ document.addEventListener('DOMContentLoaded', () => {
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
         };
 
-        const res = await fetch(MAKE_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept-Language': LANG },
-          body: JSON.stringify(payload),
-          keepalive: true
-        });
+        let sentOk = false;
 
-        if (res.ok) {
+        if (isWebhookConfigured) {
+          try {
+            const res = await fetch(MAKE_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept-Language': LANG },
+              body: JSON.stringify(payload),
+              keepalive: true,
+              mode: 'cors'
+            });
+            sentOk = res.ok;
+          } catch (err1) {
+            // Fallback bei CORS/Netzfehler: no-cors Fire-and-forget ohne Header
+            try {
+              await fetch(MAKE_WEBHOOK_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                mode: 'no-cors',
+                keepalive: true
+              });
+              sentOk = true; // als erfolgreich werten (opaque)
+            } catch (err2) {
+              sentOk = false;
+              throw err2;
+            }
+          }
+        } else {
+          // Kein Webhook konfiguriert -> simulierte Erfolgsmeldung (Dev/Preview)
+          console.warn('[ZAM] Kein Webhook konfiguriert. Submission wird lokal simuliert.');
+          sentOk = true;
+        }
+
+        if (sentOk) {
           FORM.reset();
           clearErrors();
           if (SUCCESS) SUCCESS.hidden = false;
