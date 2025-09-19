@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
               altInput: true,
               altFormat: LANG === 'en' ? 'M j, Y' : 'd.m.Y',
               allowInput: true,
-              locale: (LANG === 'en') ? 'en' : 'de',
+              locale: (window.flatpickr && window.flatpickr.l10ns) ? (LANG === 'en' ? (window.flatpickr.l10ns.default || undefined) : (window.flatpickr.l10ns.de || window.flatpickr.l10ns.default || undefined)) : undefined,
               disableMobile: true,
               clickOpens: true
             });
