@@ -936,12 +936,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Nach Init: native Picker zuverlässig unterdrücken
         try { if (input.type === 'date') input.type = 'text'; } catch {}
 
-        btn.addEventListener('click', () => {
+        const openPicker = () => {
           if (fp && typeof fp.open === 'function') { fp.open(); return; }
           try { if (typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
           input.focus();
           try { input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch {}
-        });
+        };
+
+        btn.addEventListener('click', openPicker);
+        input.addEventListener('focus', openPicker, { passive: true });
+        input.addEventListener('click', openPicker, { passive: true });
+        // Falls altInput aktiv ist (Flatpickr), auch darauf reagieren
+        setTimeout(() => {
+          const alt = wrap.querySelector('.flatpickr-input[readonly]');
+          if (alt) { alt.addEventListener('focus', openPicker, { passive: true }); alt.addEventListener('click', openPicker, { passive: true }); }
+        }, 0);
       });
     })();
     // Multi-Step initial anzeigen

@@ -112,8 +112,8 @@
 
   /* Flatpickr Breite & Spacing */
   .date-input { position: relative; }
-  .date-input .flatpickr-calendar { width: 100% !important; inset: auto !important; left: 0 !important; right: 0 !important; }
-  .flatpickr-calendar { box-shadow: var(--shadow-2); border: 1px solid #eef0f4; border-radius: var(--radius); padding: .6rem .8rem; }
+  .date-input .flatpickr-calendar { width: 100% !important; }
+  .flatpickr-calendar { box-shadow: var(--shadow-2); border: 1px solid #eef0f4; border-radius: var(--radius); padding: .6rem .8rem; z-index: 9999; }
   .flatpickr-months { margin-bottom: .35rem; }
   .flatpickr-current-month { font-size: 1.25rem; }
   .flatpickr-weekdays { margin-bottom: .25rem; }
