@@ -110,6 +110,19 @@
   .field input[type="date"]::-webkit-inner-spin-button,
   .field input[type="date"]::-webkit-clear-button { display: none; }
 
+  /* Flatpickr Breite & Spacing */
+  .date-input { position: relative; }
+  .date-input .flatpickr-calendar { width: 100% !important; inset: auto !important; left: 0 !important; right: 0 !important; }
+  .flatpickr-calendar { box-shadow: var(--shadow-2); border: 1px solid #eef0f4; border-radius: var(--radius); padding: .6rem .8rem; }
+  .flatpickr-months { margin-bottom: .35rem; }
+  .flatpickr-current-month { font-size: 1.25rem; }
+  .flatpickr-weekdays { margin-bottom: .25rem; }
+  .flatpickr-days { padding: .25rem 0 .1rem; }
+  .flatpickr-day { margin: .15rem; width: 2.2em; height: 2.2em; line-height: 2.2em; border-radius: 8px; }
+  .flatpickr-day.today { border-color: color-mix(in srgb, var(--brand-accent) 45%, #c7d2fe); }
+  .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; }
+  .flatpickr-day:hover { background: color-mix(in srgb, var(--brand-accent) 12%, #fff); }
+
   .checks .check { display: grid; grid-template-columns: 20px 1fr; gap: .5rem; align-items: start; }
   .checks input[type="checkbox"] { margin-top: .2rem; }
   

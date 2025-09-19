@@ -926,7 +926,9 @@ document.addEventListener('DOMContentLoaded', () => {
               allowInput: true,
               locale: (window.flatpickr && window.flatpickr.l10ns) ? (LANG === 'en' ? (window.flatpickr.l10ns.default || undefined) : (window.flatpickr.l10ns.de || window.flatpickr.l10ns.default || undefined)) : undefined,
               disableMobile: true,
-              clickOpens: true
+              clickOpens: true,
+              appendTo: wrap,
+              positionElement: wrap
             });
           } catch {}
         }
