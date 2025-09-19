@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Config =====
-    const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/YOUR_MAKE_WEBHOOK_URL';
+    const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
-    const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL) && !MAKE_WEBHOOK_URL.includes('YOUR_MAKE_WEBHOOK_URL');
+    const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL) && !MAKE_WEBHOOK_URL.includes('https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4');
     const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
@@ -872,6 +872,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial i18n anwenden & dynamische Felder einfügen
     applyI18n();
     renderExtraFields();
+    // Datepicker mit klickbarem Icon triggern
+    (function enhanceDatePickers(){
+      const dates = qa('input[type="date"]', FORM);
+      dates.forEach((input) => {
+        if (!input || input.dataset.enhanced === '1') return;
+        input.dataset.enhanced = '1';
+        const wrap = document.createElement('div');
+        wrap.className = 'date-input';
+        // input in Wrapper verschieben
+        const parent = input.parentNode;
+        if (!parent) return;
+        parent.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        // Trigger-Button
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'date-trigger';
+        btn.setAttribute('aria-label', LANG === 'en' ? 'Open calendar' : 'Kalender öffnen');
+        wrap.appendChild(btn);
+        btn.addEventListener('click', () => {
+          try { if (typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
+          input.focus();
+          // Fallback: klick-Event an den Input
+          try { input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch {}
+        });
+      });
+    })();
     // Multi-Step initial anzeigen
     showStep(0);
   });
