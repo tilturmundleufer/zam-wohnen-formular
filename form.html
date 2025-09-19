@@ -33,6 +33,7 @@
     <h2 class="zam-apply__title">Jetzt bewerben – {{ name }}</h2>
     <p class="zam-apply__subtitle">Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.</p>
 
+    <div class="zam-apply__info">
     <ul class="zam-apply__facts" aria-label="Wohnungsdetails">
       <li><span>Haus</span><strong id="fact-haus">—</strong></li>
       <li><span>Stockwerk</span><strong id="fact-stock">—</strong></li>
@@ -43,14 +44,8 @@
       <li><span>Nebenkosten</span><strong id="fact-nk">—</strong></li>
       <li><span>Ausrichtung</span><strong id="fact-orient">—</strong></li>
     </ul>
-
-    <details class="zam-apply__amenities" id="amenitiesDropdown">
-      <summary>
-        <span class="chev" aria-hidden="true"></span>
-        Ausstattung
-      </summary>
-      <ul class="amenities-list" id="amenitiesList" aria-label="Ausstattung"></ul>
-    </details>
+    <ul class="amenities-list" id="amenitiesList" aria-label="Ausstattung"></ul>
+    </div>
   </header>
 
   <div class="form-info" id="eligibilityInfo" role="note">
