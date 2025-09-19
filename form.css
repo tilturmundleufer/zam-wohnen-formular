@@ -3,7 +3,7 @@
 [data-theme="zam"] {
     --brand-primary: #0d2440;
     --brand-accent:  #fa4616;
-    --brand-bg:      #f7f8fa;
+    --brand-bg:      #eef2f7;
     --brand-text:    #111827;
     --success-bg:    #f0fdf4;
     --success-bd:    #dcfce7;
@@ -28,7 +28,7 @@
   [hidden] { display: none !important; }
   
   /* ============== Layout ============== */
-  .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: linear-gradient(180deg, #fff 0%, var(--brand-bg) 100%); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  .zam-apply { padding: clamp(12px, 1.6vw, 24px); background: linear-gradient(180deg, color-mix(in srgb, var(--brand-accent) 6%, #fff) 0%, var(--brand-bg) 100%); color: var(--brand-text); border-radius: var(--radius); box-shadow: var(--shadow-1); font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
   .zam-apply__title { margin: 0 0 .25rem; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.2; }
   .zam-apply__subtitle { margin: 0 0 .75rem; opacity: .85; }
   .zam-apply__image { margin: 0 0 .75rem; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); }
@@ -121,7 +121,7 @@
   .checks .check { display: grid; grid-template-columns: 20px 1fr; gap: .5rem; align-items: start; }
   .checks input[type="checkbox"] { margin-top: .2rem; }
   
-  .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 10px; position: sticky; bottom: 0; background: #fff; padding: .5rem 0; }
   .form-note { opacity: .7; }
   .form-steps-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; }
   .btn--secondary { background: #fff; color: var(--brand-primary); border: 1px solid #e5e7eb; box-shadow: var(--shadow-1); }

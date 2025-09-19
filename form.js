@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setSelect('pets', t.selects.pets);
       
       
-      setSelect('parking', t.selects.parking);
+      // Parking-Select wird im HTML definiert; keine Außenstellplatz-Option mehr
       setSelect('how_did_you_hear', t.selects.how_did_you_hear);
       // Buttons & Notes
       const note = q('.form-note'); if (note) note.textContent = t.note;
@@ -365,16 +365,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return true;
     }
     function isFormComplete(){
+      // Für die Anzeige des Submit-Buttons genügt Validität aller Pflichtfelder.
+      // (Bestätigungs-Status wird weiterhin für Auto-Advance genutzt.)
       for (const name of REQUIRED) { if (!isFieldValid(name)) return false; }
-      // zusätzlich: alle Pflichtfelder müssen bestätigt sein
-      for (const name of REQUIRED) { if (!isFieldConfirmed(name)) return false; }
       return true;
     }
     function updateControlsVisibility(){
       const isFirst = currentStep === 0;
       const isLast = currentStep === GROUPS.length - 1;
       if (PREV) { PREV.hidden = isFirst; PREV.disabled = isFirst; }
-      // Wunsch: "Weiter" immer zeigen, außer im letzten Step
+      // "Weiter" nur zeigen, wenn nicht letzter Step
       if (NEXT) { NEXT.hidden = isLast; }
       const actions = q('.form-actions');
       const showSubmit = isLast && isFormComplete();
