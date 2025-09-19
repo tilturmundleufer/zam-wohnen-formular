@@ -933,12 +933,32 @@ document.addEventListener('DOMContentLoaded', () => {
           } catch {}
         }
 
-        // Nach Init: native Picker zuverlässig unterdrücken
-        try { if (input.type === 'date') input.type = 'text'; } catch {}
+        // Nach erfolgreicher Flatpickr-Init: nativen Picker unterdrücken
+        try { if (fp && input.type === 'date') input.type = 'text'; } catch {}
 
         const openPicker = () => {
+          // Lazy-Init: falls Lib inzwischen verfügbar ist
+          if (!fp && window.flatpickr) {
+            try {
+              fp = window.flatpickr(input, {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: LANG === 'en' ? 'M j, Y' : 'd.m.Y',
+                allowInput: true,
+                locale: (window.flatpickr && window.flatpickr.l10ns) ? (LANG === 'en' ? (window.flatpickr.l10ns.default || undefined) : (window.flatpickr.l10ns.de || window.flatpickr.l10ns.default || undefined)) : undefined,
+                disableMobile: true,
+                clickOpens: true,
+                appendTo: wrap,
+                positionElement: wrap
+              });
+              // Nach erfolgreicher Init nativen Picker deaktivieren
+              try { if (input.type === 'date') input.type = 'text'; } catch {}
+            } catch {}
+          }
+
           if (fp && typeof fp.open === 'function') { fp.open(); return; }
-          try { if (typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
+          // Fallback: nativen Picker nutzen, wenn verfügbar (nur bei type=date)
+          try { if (input.type === 'date' && typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
           input.focus();
           try { input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch {}
         };
