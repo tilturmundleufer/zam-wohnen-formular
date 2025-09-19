@@ -803,30 +803,34 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         let sentOk = false;
+        const bodyStr = JSON.stringify(payload);
 
         if (isWebhookConfigured) {
           try {
+            // Preflight vermeiden: safelisted Content-Type verwenden
             const res = await fetch(MAKE_WEBHOOK_URL, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept-Language': LANG },
-              body: JSON.stringify(payload),
-              keepalive: true,
-              mode: 'cors'
+              headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+              body: bodyStr,
+              mode: 'cors',
+              keepalive: true
             });
             sentOk = res.ok;
           } catch (err1) {
-            // Fallback bei CORS/Netzfehler: no-cors Fire-and-forget ohne Header
+            // 2) Fallback: sendBeacon (cross-origin erlaubt, text/plain)
             try {
-              await fetch(MAKE_WEBHOOK_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                mode: 'no-cors',
-                keepalive: true
-              });
-              sentOk = true; // als erfolgreich werten (opaque)
-            } catch (err2) {
-              sentOk = false;
-              throw err2;
+              const ok = navigator.sendBeacon && navigator.sendBeacon(MAKE_WEBHOOK_URL, new Blob([bodyStr], { type: 'text/plain;charset=UTF-8' }));
+              if (ok) { sentOk = true; }
+            } catch {}
+            // 3) Letzter Fallback: no-cors Fire-and-forget
+            if (!sentOk) {
+              try {
+                await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: bodyStr, mode: 'no-cors', keepalive: true });
+                sentOk = true;
+              } catch (err2) {
+                sentOk = false;
+                throw err2;
+              }
             }
           }
         } else {
