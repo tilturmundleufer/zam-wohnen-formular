@@ -933,8 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
           } catch {}
         }
 
-        // Nach erfolgreicher Flatpickr-Init: nativen Picker unterdrücken
-        try { if (fp && input.type === 'date') input.type = 'text'; } catch {}
+        // Hinweis: Typ-Umschaltung vermeiden; Flatpickr verwaltet altInput/Visibility selbst
 
         const openPicker = () => {
           // Lazy-Init: falls Lib inzwischen verfügbar ist
@@ -949,10 +948,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 disableMobile: true,
                 clickOpens: true,
                 appendTo: wrap,
-                positionElement: wrap
+                positionElement: wrap,
+                onReady: [function(selectedDates, dateStr, instance){
+                  const alt = wrap.querySelector('.flatpickr-input[readonly]');
+                  if (alt) { alt.addEventListener('focus', openPicker, { passive: true }); alt.addEventListener('click', openPicker, { passive: true }); }
+                }]
               });
-              // Nach erfolgreicher Init nativen Picker deaktivieren
-              try { if (input.type === 'date') input.type = 'text'; } catch {}
             } catch {}
           }
 

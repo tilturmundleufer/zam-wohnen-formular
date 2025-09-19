@@ -112,8 +112,10 @@
 
   /* Flatpickr Breite & Spacing */
   .date-input { position: relative; }
-  .date-input .flatpickr-calendar { width: 100% !important; }
-  .flatpickr-calendar { box-shadow: var(--shadow-2); border: 1px solid #eef0f4; border-radius: var(--radius); padding: .6rem .8rem; z-index: 9999; }
+  .date-input .flatpickr-calendar { width: 100% !important; top: calc(100% + 8px) !important; left: 0 !important; right: auto !important; }
+  .flatpickr-calendar { box-shadow: var(--shadow-2); border: 1px solid #eef0f4; border-radius: var(--radius); padding: .6rem .8rem; z-index: 99999; }
+  /* Sicherstellen, dass kein overflow die Anzeige verdeckt */
+  .zam-apply, .zam-form, .field { overflow: visible; }
   .flatpickr-months { margin-bottom: .35rem; }
   .flatpickr-current-month { font-size: 1.25rem; }
   .flatpickr-weekdays { margin-bottom: .25rem; }
