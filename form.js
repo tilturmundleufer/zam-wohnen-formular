@@ -924,12 +924,15 @@ document.addEventListener('DOMContentLoaded', () => {
               altInput: true,
               altFormat: LANG === 'en' ? 'M j, Y' : 'd.m.Y',
               allowInput: true,
-              locale: (window.flatpickr?.l10ns?.de && LANG !== 'en') ? window.flatpickr.l10ns.de : undefined,
+              locale: (LANG === 'en') ? 'en' : 'de',
               disableMobile: true,
-              clickOpens: false
+              clickOpens: true
             });
           } catch {}
         }
+
+        // Nach Init: native Picker zuverlässig unterdrücken
+        try { if (input.type === 'date') input.type = 'text'; } catch {}
 
         btn.addEventListener('click', () => {
           if (fp && typeof fp.open === 'function') { fp.open(); return; }
