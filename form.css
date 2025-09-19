@@ -10,8 +10,8 @@
     --error-bd:      #fbd5d5;
     --error-ring:    rgba(239,68,68,.15);
   
-    --radius: 14px;
-    --radius-sm: 10px;
+    --radius: 8px;
+    --radius-sm: 6px;
     --shadow-1: 0 6px 24px rgba(0,0,0,.08);
     --shadow-2: 0 12px 32px rgba(0,0,0,.12);
   
@@ -42,7 +42,7 @@
   .zam-apply__amenities { margin: .5rem 0 1rem; }
   .zam-apply__amenities summary {
     list-style: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: .6rem;
-    padding: .55rem .9rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
+    padding: .55rem .9rem; border-radius: 6px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
     transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .05s ease; color: inherit;
   }
   .zam-apply__amenities summary::-webkit-details-marker { display: none; }
@@ -66,7 +66,7 @@
   .field label { display: block; font-weight: 600; margin: 0 0 .25rem; }
   .field input, .field select, .field textarea {
     width: 100%; border: 1px solid var(--input-bd); background: var(--input-bg);
-    border-radius: 12px; padding: .5rem .7rem; font: inherit; color: inherit;
+    border-radius: 6px; padding: .5rem .7rem; font: inherit; color: inherit;
     transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
   }
   .field input:focus, .field select:focus, .field textarea:focus {
@@ -90,11 +90,13 @@
   .btn--secondary { background: #fff; color: var(--brand-primary); border: 1px solid #e5e7eb; box-shadow: var(--shadow-1); }
   .btn--secondary:hover { background: #f9fafb; }
   
-  .btn { display: inline-flex; align-items: center; gap: .5rem; border: none; border-radius: 999px;
+.btn { display: inline-flex; align-items: center; gap: .5rem; border: none; border-radius: 6px;
     padding: .75rem 1.15rem; font-weight: 700; cursor: pointer; transition: transform .05s ease, box-shadow .2s ease, background-color .2s ease;
   }
 .btn--primary { background: linear-gradient(180deg, color-mix(in srgb, var(--brand-accent) 12%, #fff), var(--brand-accent)); color: #fff; box-shadow: var(--shadow-2); border: 1px solid color-mix(in srgb, var(--brand-accent) 40%, transparent); }
 .btn--primary:hover { transform: translateY(-1px); filter: brightness(1.02); }
+/* Weiter-Button ohne Gradient (flach) */
+#nextStepBtn.btn--primary { background: var(--brand-accent); }
   .btn--primary:active { transform: translateY(0); }
   .btn[disabled] { opacity: var(--disabled-opacity); cursor: not-allowed; }
   .btn__spinner { width: 0.9em; height: 0.9em; border-radius: 999px; border: 2px solid #ffffff80; border-top-color: #fff; display: none; animation: spin .9s linear infinite; }
@@ -116,7 +118,7 @@
   .zam-apply__toggle { margin: 8px 0 12px; }
   .zam-apply__toggle summary {
     list-style: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: .6rem;
-    padding: .55rem .9rem; border-radius: 999px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
+    padding: .55rem .9rem; border-radius: 6px; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1);
     transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .05s ease;
     color: inherit;
   }
