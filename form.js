@@ -22,6 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch { return String(num); }
     };
 
+    // Dynamisches Asset-Loading (für Datepicker)
+    function loadCSS(href){
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`link[data-dyn-css="${href}"]`)) return resolve();
+        const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; l.setAttribute('data-dyn-css', href);
+        l.onload = () => resolve(); l.onerror = reject; document.head.appendChild(l);
+      });
+    }
+    function loadJS(src){
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[data-dyn-js="${src}"]`)) return resolve();
+        const s = document.createElement('script'); s.src = src; s.async = true; s.defer = true; s.setAttribute('data-dyn-js', src);
+        s.onload = () => resolve(); s.onerror = reject; document.head.appendChild(s);
+      });
+    }
+
     // ===== ARIA / Zugänglichkeit =====
     const getField = (name) => FORM ? (FORM.querySelector(`[name="${name}"]`) || q('#' + name, FORM)) : null;
     const getErrorEl = (name) => {
@@ -876,29 +892,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial i18n anwenden & dynamische Felder einfügen
     applyI18n();
     renderExtraFields();
-    // Datepicker mit klickbarem Icon triggern
-    (function enhanceDatePickers(){
+    // Datepicker: moderne UI via Flatpickr (mit Fallback auf native showPicker)
+    (async function enhanceDatePickers(){
       const dates = qa('input[type="date"]', FORM);
+      if (!dates.length) return;
+      try {
+        await loadCSS('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
+        await loadJS('https://cdn.jsdelivr.net/npm/flatpickr');
+        await loadJS('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js');
+      } catch {}
+
       dates.forEach((input) => {
         if (!input || input.dataset.enhanced === '1') return;
         input.dataset.enhanced = '1';
+        // Wrapper
         const wrap = document.createElement('div');
         wrap.className = 'date-input';
-        // input in Wrapper verschieben
-        const parent = input.parentNode;
-        if (!parent) return;
-        parent.insertBefore(wrap, input);
-        wrap.appendChild(input);
-        // Trigger-Button
+        const parent = input.parentNode; if (!parent) return;
+        parent.insertBefore(wrap, input); wrap.appendChild(input);
+        // Trigger
         const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'date-trigger';
+        btn.type = 'button'; btn.className = 'date-trigger';
         btn.setAttribute('aria-label', LANG === 'en' ? 'Open calendar' : 'Kalender öffnen');
         wrap.appendChild(btn);
+
+        let fp = null;
+        if (window.flatpickr) {
+          try {
+            fp = window.flatpickr(input, {
+              dateFormat: 'Y-m-d',
+              altInput: true,
+              altFormat: LANG === 'en' ? 'M j, Y' : 'd.m.Y',
+              allowInput: true,
+              locale: (window.flatpickr?.l10ns?.de && LANG !== 'en') ? window.flatpickr.l10ns.de : undefined,
+              disableMobile: true,
+              clickOpens: false
+            });
+          } catch {}
+        }
+
         btn.addEventListener('click', () => {
+          if (fp && typeof fp.open === 'function') { fp.open(); return; }
           try { if (typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
           input.focus();
-          // Fallback: klick-Event an den Input
           try { input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch {}
         });
       });
