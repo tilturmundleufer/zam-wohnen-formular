@@ -445,14 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isRestoringDraft) { updateControlsVisibility(); return; }
       // Update Sichtbarkeit für alle Controls
       updateControlsVisibility();
-      // Auto-Advance für ALLE Steps (nicht nur mit Pflichtfeldern)
-      if (lastInteractedStep === currentStep && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
-        // debounce: kurze Verzögerung, um Fehltrigger bei Fokus zu vermeiden
-        clearTimeout(checkAutoAdvance._t);
-        checkAutoAdvance._t = setTimeout(() => {
-          if (lastInteractedStep === currentStep && isStepComplete(currentStep)) showStep(currentStep + 1);
-        }, 50);
-      }
+      // Auto-Advance entfernt - funktioniert nicht zuverlässig
     }
     // ===== Mobile: Auto-Fokus auf nächstes Feld =====
     const IS_MOBILE = (typeof window.matchMedia === 'function' && window.matchMedia('(pointer:coarse)').matches) || (window.innerWidth <= 680);
@@ -480,14 +473,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!IS_MOBILE) return;
       const fields = stepFieldNames(currentStep);
       const i = fields.indexOf(name);
-      if (i >= 0 && i < fields.length - 1) { focusFieldByName(fields[i + 1]); return; }
-      if (currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
-        showStep(currentStep + 1);
-        const nextFields = stepFieldNames(currentStep);
-        if (nextFields.length) focusFieldByName(nextFields[0]);
-        return;
+      if (i >= 0 && i < fields.length - 1) { 
+        focusFieldByName(fields[i + 1]); 
+        return; 
       }
-      if (currentStep === GROUPS.length - 1 && isFormComplete() && SUBMIT) { try { SUBMIT.focus(); } catch {} }
+      // Auto-Advance zu nächstem Step entfernt - nur noch Fokus auf Submit am Ende
+      if (currentStep === GROUPS.length - 1 && isFormComplete() && SUBMIT) { 
+        try { SUBMIT.focus(); } catch {} 
+      }
     }
     // Auf Eingaben reagieren
     FORM.addEventListener('input', (e)=>{ 
