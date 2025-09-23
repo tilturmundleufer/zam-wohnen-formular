@@ -471,7 +471,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function focusNextFieldFrom(name){
       if (!IS_MOBILE) return;
-      const fields = stepFieldNames(currentStep);
+      
+      // Prüfe ob der aktuelle Step Datepicker oder Selects enthält
+      const currentFields = stepFieldNames(currentStep);
+      const hasDatepickerOrSelect = currentFields.some(fieldName => {
+        const el = getField(fieldName);
+        return el && (el.type === 'date' || el.tagName === 'SELECT');
+      });
+      
+      // Kein Auto-Springen bei Steps mit Datepicker oder Selects
+      if (hasDatepickerOrSelect) return;
+      
+      const fields = currentFields;
       const i = fields.indexOf(name);
       if (i >= 0 && i < fields.length - 1) { 
         focusFieldByName(fields[i + 1]); 
