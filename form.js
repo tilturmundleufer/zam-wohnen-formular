@@ -833,8 +833,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!IMG_WRAP) return;
       // Quelle: Multi-Image-Block im Webflow-Item (hidden) mit Klasse .gallery-source
       const container = WRAP.closest('.collection-item') || WRAP.parentElement || document;
-      // Priorität 1: Datenfelder data-img1..3
-      const urls = [WRAP.dataset.img1, WRAP.dataset.img2, WRAP.dataset.img3].filter(u => typeof u === 'string' && u.trim());
+      // Priorität 1: Datenfelder data-img1..3 (nur gültige URLs)
+      const isValidUrl = (s) => {
+        if (!s) return false;
+        const v = String(s).trim();
+        if (!v || v.includes('{{')) return false; // ungefülltes Template
+        return /^(https?:|\/\/|\/|data:image\//i.test(v);
+      };
+      const urls = [WRAP.dataset.img1, WRAP.dataset.img2, WRAP.dataset.img3]
+        .map(v => (v||'').trim())
+        .filter(isValidUrl);
       // Priorität 2: Multi-Image-Quelle im DOM
       if (!urls.length) {
         const srcImgs = Array.from(container.querySelectorAll('.gallery-source img'));
@@ -845,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fallback = container.querySelector('img.rte-image, .unit-main-image img, .w-dyn-item img, .w-richtext img');
         if (fallback && fallback.src) urls.push(fallback.src);
       }
-      if (!urls.length) { IMG_WRAP.style.display = 'none'; return; }
+      if (!urls.length) { IMG_WRAP.style.display = 'none'; console.warn('[ZAM] Keine gültigen Slider-Bilder gefunden.'); return; }
 
       // Slider-Markup
       const slider = document.createElement('div'); slider.className = 'zam-apply__slider';
