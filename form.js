@@ -455,8 +455,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
       }
     }
+    // ===== Mobile: Auto-Fokus auf nächstes Feld =====
+    const IS_MOBILE = (typeof window.matchMedia === 'function' && window.matchMedia('(pointer:coarse)').matches) || (window.innerWidth <= 680);
+    function stepFieldNames(idx){ return (GROUPS[idx] || []).slice(1).filter(n => !!getField(n)); }
+    function focusFieldByName(name){
+      const el = getField(name);
+      if (!el) return false;
+      if (el.offsetParent === null) return false;
+      try { el.focus({ preventScroll: false }); if (typeof el.select === 'function' && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.select(); } catch {}
+      return true;
+    }
+    function focusNextFieldFrom(name){
+      if (!IS_MOBILE) return;
+      const fields = stepFieldNames(currentStep);
+      const i = fields.indexOf(name);
+      if (i >= 0 && i < fields.length - 1) { focusFieldByName(fields[i + 1]); return; }
+      if (currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
+        showStep(currentStep + 1);
+        const nextFields = stepFieldNames(currentStep);
+        if (nextFields.length) focusFieldByName(nextFields[0]);
+        return;
+      }
+      if (currentStep === GROUPS.length - 1 && isFormComplete() && SUBMIT) { try { SUBMIT.focus(); } catch {} }
+    }
     // Auf Eingaben reagieren
-    FORM.addEventListener('input', (e)=>{ saveDraftDebounced(); checkAutoAdvance(); }, { passive: true });
+    FORM.addEventListener('input', (e)=>{ 
+      saveDraftDebounced(); 
+      const t = e.target; const name = t?.name || t?.id;
+      // Bei Autofill/Paste sofort zum nächsten (nur mobil), wenn Feld valide ist
+      if (IS_MOBILE && name && isFieldValid(name)) {
+        const it = e.inputType || '';
+        if (/insert(From|Replacement|Composition)/i.test(it)) { focusNextFieldFrom(name); }
+      }
+      checkAutoAdvance(); 
+    }, { passive: true });
     FORM.addEventListener('change', (e)=>{
       const t = e.target;
       if (!t) return;
@@ -468,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       saveDraftDebounced();
       lastInteractedStep = getStepIndexForField(name);
+      if (IS_MOBILE && isFieldValid(name)) focusNextFieldFrom(name);
       checkAutoAdvance();
     }, { passive: true });
     FORM.addEventListener('keydown', (e)=>{
@@ -475,12 +508,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
         e.preventDefault(); // Enter soll nicht submitten zwischen Steps
         saveDraftDebounced();
+        if (IS_MOBILE && name && isFieldValid(name)) focusNextFieldFrom(name);
         checkAutoAdvance();
       }
     });
     FORM.addEventListener('blur', (e)=>{
       const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
       saveDraftDebounced();
+      if (IS_MOBILE && name && isFieldValid(name)) focusNextFieldFrom(name);
       checkAutoAdvance();
     }, true);
 
