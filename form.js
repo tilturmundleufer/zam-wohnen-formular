@@ -828,25 +828,44 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
     // ===== Bild aus CMS binden =====
-    (function bindUnitImage(){
-      const img = q('#unitImage');
-      if (!img) return;
-      // Versuche, Bild-URL aus data-Attribut zu lesen, sonst aus CMS-Umfeld
-      const dataSrc = WRAP.dataset.imageUrl || WRAP.dataset.image || '';
-      if (dataSrc) {
-        img.src = dataSrc;
-        return;
-      }
-      // Fallback: in der umgebenden Collection nach einem Bild suchen
+    (function bindUnitGallery(){
+      const IMG_WRAP = q('.zam-apply__image');
+      if (!IMG_WRAP) return;
+      // Quelle: Multi-Image-Block im Webflow-Item (hidden) mit Klasse .gallery-source
       const container = WRAP.closest('.collection-item') || WRAP.parentElement || document;
-      const cmsImg = container.querySelector('img.rte-image, .unit-main-image img, .w-dyn-item img, .w-richtext img');
-      if (cmsImg && cmsImg.src) {
-        img.src = cmsImg.src;
-      } else {
-        // Wenn nichts gefunden: Bildcontainer verstecken
-        const wrap = img.closest('.zam-apply__image');
-        if (wrap) wrap.style.display = 'none';
+      const srcImgs = Array.from(container.querySelectorAll('.gallery-source img'));
+      const urls = srcImgs.map(i => i.currentSrc || i.src).filter(Boolean);
+      // Fallback: Einzelbild suchen
+      if (!urls.length) {
+        const fallback = container.querySelector('img.rte-image, .unit-main-image img, .w-dyn-item img, .w-richtext img');
+        if (fallback && fallback.src) urls.push(fallback.src);
       }
+      if (!urls.length) { IMG_WRAP.style.display = 'none'; return; }
+
+      // Slider-Markup
+      const slider = document.createElement('div'); slider.className = 'zam-apply__slider';
+      const track = document.createElement('div'); track.className = 'zam-apply__slides';
+      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; const im = document.createElement('img'); im.loading='lazy'; im.decoding='async'; im.src=u; s.appendChild(im); track.appendChild(s); });
+      const nav = document.createElement('div'); nav.className = 'zam-apply__nav';
+      const prev = document.createElement('button'); prev.type='button'; prev.className='zam-apply__btn zam-apply__btn--prev'; prev.setAttribute('aria-label', LANG==='en'?'Previous image':'Vorheriges Bild');
+      const next = document.createElement('button'); next.type='button'; next.className='zam-apply__btn zam-apply__btn--next'; next.setAttribute('aria-label', LANG==='en'?'Next image':'Nächstes Bild');
+      nav.appendChild(prev); nav.appendChild(next);
+      const dots = document.createElement('div'); dots.className = 'zam-apply__dots';
+      urls.forEach((_, i)=>{ const d=document.createElement('button'); d.type='button'; d.className='zam-apply__dot'; d.setAttribute('aria-label', (LANG==='en'? 'Go to image ':'Zum Bild ') + (i+1)); if(i===0) d.setAttribute('aria-current','true'); dots.appendChild(d); });
+      slider.appendChild(track); slider.appendChild(nav); slider.appendChild(dots);
+      IMG_WRAP.replaceChildren(slider);
+
+      // Slider-Logic
+      let idx = 0;
+      function update(){
+        track.style.transform = `translateX(-${idx*100}%)`;
+        Array.from(dots.children).forEach((d, i)=>{ if (i===idx) d.setAttribute('aria-current','true'); else d.removeAttribute('aria-current'); });
+      }
+      function go(n){ idx = (n+urls.length)%urls.length; update(); }
+      prev.addEventListener('click', ()=> go(idx-1));
+      next.addEventListener('click', ()=> go(idx+1));
+      Array.from(dots.children).forEach((d, i)=> d.addEventListener('click', ()=> go(i)));
+      update();
     })();
 
     // ===== Hidden-Felder (lokal) =====
