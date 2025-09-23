@@ -445,9 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isRestoringDraft) { updateControlsVisibility(); return; }
       // Update Sichtbarkeit für alle Controls
       updateControlsVisibility();
-      // Auto-Advance nur für Steps MIT Pflichtfeldern
-      const stepHasRequired = GROUPS[currentStep].slice(1).some(n => REQUIRED.includes(n));
-      if (lastInteractedStep === currentStep && stepHasRequired && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
+      // Auto-Advance für ALLE Steps (nicht nur mit Pflichtfeldern)
+      if (lastInteractedStep === currentStep && currentStep < GROUPS.length - 1 && isStepComplete(currentStep)) {
         // debounce: kurze Verzögerung, um Fehltrigger bei Fokus zu vermeiden
         clearTimeout(checkAutoAdvance._t);
         checkAutoAdvance._t = setTimeout(() => {
@@ -462,7 +461,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = getField(name);
       if (!el) return false;
       if (el.offsetParent === null) return false;
-      try { el.focus({ preventScroll: false }); if (typeof el.select === 'function' && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.select(); } catch {}
+      try { 
+        el.focus({ preventScroll: false }); 
+        // Bei Input/Textarea: Text selektieren und Cursor positionieren
+        if (typeof el.select === 'function' && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+          el.select();
+          // Cursor ans Ende setzen
+          setTimeout(() => {
+            if (el.setSelectionRange) {
+              el.setSelectionRange(el.value.length, el.value.length);
+            }
+          }, 10);
+        }
+      } catch {}
       return true;
     }
     function focusNextFieldFrom(name){
@@ -485,7 +496,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Bei Autofill/Paste sofort zum nächsten (nur mobil), wenn Feld valide ist
       if (IS_MOBILE && name && isFieldValid(name)) {
         const it = e.inputType || '';
-        if (/insert(From|Replacement|Composition)/i.test(it)) { focusNextFieldFrom(name); }
+        if (/insert(From|Replacement|Composition)/i.test(it)) { 
+          // Kurze Verzögerung für Autofill, damit das Feld vollständig gefüllt ist
+          setTimeout(() => focusNextFieldFrom(name), 100);
+        }
       }
       checkAutoAdvance(); 
     }, { passive: true });
@@ -500,7 +514,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       saveDraftDebounced();
       lastInteractedStep = getStepIndexForField(name);
-      if (IS_MOBILE && isFieldValid(name)) focusNextFieldFrom(name);
+      if (IS_MOBILE && isFieldValid(name)) {
+        // Kurze Verzögerung für Change-Events
+        setTimeout(() => focusNextFieldFrom(name), 50);
+      }
       checkAutoAdvance();
     }, { passive: true });
     FORM.addEventListener('keydown', (e)=>{
@@ -508,14 +525,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
         e.preventDefault(); // Enter soll nicht submitten zwischen Steps
         saveDraftDebounced();
-        if (IS_MOBILE && name && isFieldValid(name)) focusNextFieldFrom(name);
+        if (IS_MOBILE && name && isFieldValid(name)) {
+          // Kurze Verzögerung für Enter
+          setTimeout(() => focusNextFieldFrom(name), 50);
+        }
         checkAutoAdvance();
       }
     });
     FORM.addEventListener('blur', (e)=>{
       const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
       saveDraftDebounced();
-      if (IS_MOBILE && name && isFieldValid(name)) focusNextFieldFrom(name);
+      if (IS_MOBILE && name && isFieldValid(name)) {
+        // Kurze Verzögerung für Blur
+        setTimeout(() => focusNextFieldFrom(name), 50);
+      }
       checkAutoAdvance();
     }, true);
 
