@@ -833,8 +833,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!IMG_WRAP) return;
       // Quelle: Multi-Image-Block im Webflow-Item (hidden) mit Klasse .gallery-source
       const container = WRAP.closest('.collection-item') || WRAP.parentElement || document;
-      const srcImgs = Array.from(container.querySelectorAll('.gallery-source img'));
-      const urls = srcImgs.map(i => i.currentSrc || i.src).filter(Boolean);
+      // Priorität 1: Datenfelder data-img1..3
+      const urls = [WRAP.dataset.img1, WRAP.dataset.img2, WRAP.dataset.img3].filter(u => typeof u === 'string' && u.trim());
+      // Priorität 2: Multi-Image-Quelle im DOM
+      if (!urls.length) {
+        const srcImgs = Array.from(container.querySelectorAll('.gallery-source img'));
+        urls.push(...srcImgs.map(i => i.currentSrc || i.src).filter(Boolean));
+      }
       // Fallback: Einzelbild suchen
       if (!urls.length) {
         const fallback = container.querySelector('img.rte-image, .unit-main-image img, .w-dyn-item img, .w-richtext img');
