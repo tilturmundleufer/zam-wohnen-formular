@@ -1068,12 +1068,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Zusätzlich Roh-JSON als Debug-Feld
             add('raw_json', bodyStr);
 
-            const res = await fetch(MAKE_WEBHOOK_URL, {
-              method: 'POST',
+        const res = await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
               body: fd,
               mode: 'cors',
-              keepalive: true
-            });
+          keepalive: true
+        });
             sentOk = res.ok;
           } catch (err1) {
             // Fallback: text/plain + sendBeacon/no-cors
@@ -1176,7 +1176,8 @@ document.addEventListener('DOMContentLoaded', () => {
           } catch {}
         }
 
-        // Hinweis: Typ-Umschaltung vermeiden; Flatpickr verwaltet altInput/Visibility selbst
+        // Hinweis: Native Picker auf Mobile unterdrücken (nur Flatpickr verwenden)
+        try { input.readOnly = true; input.setAttribute('inputmode', 'none'); } catch {}
 
         const openPicker = () => {
           // Lazy-Init: falls Lib inzwischen verfügbar ist
@@ -1201,14 +1202,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           if (fp && typeof fp.open === 'function') { fp.open(); return; }
-          // Fallback: nativen Picker nutzen, wenn verfügbar (nur bei type=date)
-          try { if (input.type === 'date' && typeof input.showPicker === 'function') { input.showPicker(); return; } } catch {}
-          input.focus();
-          try { input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch {}
+          // Kein Fallback mehr auf nativen Datepicker
         };
 
         btn.addEventListener('click', openPicker);
-        input.addEventListener('focus', openPicker, { passive: true });
+        // Öffnen nur per Button/Klick, nicht beim bloßen Fokus
         input.addEventListener('click', openPicker, { passive: true });
         // Falls altInput aktiv ist (Flatpickr), auch darauf reagieren
         setTimeout(() => {
