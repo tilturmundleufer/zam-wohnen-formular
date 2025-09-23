@@ -316,6 +316,21 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Parking-Select wird im HTML definiert; keine Außenstellplatz-Option mehr
       setSelect('how_did_you_hear', t.selects.how_did_you_hear);
+      // Viewing selects befüllen
+      const daySel = q('#viewing_day');
+      if (daySel) {
+        const arr = (LANG==='en') ? ['Please choose','Weekdays','Weekend'] : ['Bitte wählen','Unter der Woche','Am Wochenende'];
+        const cur = daySel.value; daySel.innerHTML='';
+        arr.forEach((label, idx)=>{ const o=document.createElement('option'); o.textContent=label; if(idx===0){o.value='';o.disabled=true;o.selected=true;} daySel.appendChild(o); });
+        if (Array.from(daySel.options).some(o=>o.textContent===cur)) daySel.value = cur;
+      }
+      const timeSel = q('#viewing_time');
+      if (timeSel) {
+        const arr = (LANG==='en') ? ['Please choose','Morning','Midday','Evening'] : ['Bitte wählen','Morgens','Mittags','Abends'];
+        const cur = timeSel.value; timeSel.innerHTML='';
+        arr.forEach((label, idx)=>{ const o=document.createElement('option'); o.textContent=label; if(idx===0){o.value='';o.disabled=true;o.selected=true;} timeSel.appendChild(o); });
+        if (Array.from(timeSel.options).some(o=>o.textContent===cur)) timeSel.value = cur;
+      }
       // Buttons & Notes
       const note = q('.form-note'); if (note) note.textContent = t.note;
       if (SUBMIT) SUBMIT.firstChild && (SUBMIT.firstChild.nodeType === 3) && (SUBMIT.firstChild.textContent = t.submit + ' ');
@@ -329,11 +344,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Multi-Step: Gruppen definieren =====
     const GROUPS = [
       ['grp-contact','full_name','email','phone'],
-      ['grp-move','move_in','earliest_move_in','latest_move_in'],
+      ['grp-move','move_in','earliest_move_in'],
       ['grp-household','occupants','income','employment'],
       ['grp-address','street','postal_code','city','country'],
       ['grp-prefs','pets','how_did_you_hear','parking'],
-      ['grp-notes','viewing_times','privacy']
+      ['grp-notes','viewing_day','viewing_time','privacy']
     ];
     let currentStep = 0;
     let isRestoringDraft = false;
@@ -356,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const names = group.slice(1);
       // Spezialregel: Im Einzugs-Step erst weiter, wenn ALLE drei Datumsfelder gesetzt sind
       if (groupId === 'grp-move') {
-        const mustHave = ['move_in','earliest_move_in','latest_move_in'];
+        const mustHave = ['move_in','earliest_move_in'];
         return mustHave.every(n => {
           const el = getField(n);
           return el && !!el.value;
@@ -645,6 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Facts füllen (lokal) =====
+    setText('#availableFrom', WRAP?.dataset.verfuegbarAb || '—');
     setText('#fact-haus',  meta.haus);
     setText('#fact-stock', meta.stockwerk);
     setText('#fact-rooms', meta.zimmer);
@@ -861,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Preload und Slides erstellen
       const preloaded = new Map();
       await Promise.all(urls.map(u => new Promise((res)=>{ const img = new Image(); img.onload=()=>{ preloaded.set(u, true); res(); }; img.onerror=()=>res(); img.src=u; })));
-      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; const im = document.createElement('img'); im.loading='eager'; im.decoding='async'; im.src=u; s.appendChild(im); track.appendChild(s); });
+      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; s.style.backgroundImage = `url(${JSON.stringify(u).slice(1,-1)})`; const im = document.createElement('img'); im.alt=''; im.loading='eager'; im.decoding='async'; im.src=u; im.style.opacity='0'; im.style.position='absolute'; im.style.pointerEvents='none'; s.appendChild(im); track.appendChild(s); });
       const nav = document.createElement('div'); nav.className = 'zam-apply__nav';
       const prev = document.createElement('button'); prev.type='button'; prev.className='zam-apply__btn zam-apply__btn--prev'; prev.setAttribute('aria-label', LANG==='en'?'Previous image':'Vorheriges Bild');
       const next = document.createElement('button'); next.type='button'; next.className='zam-apply__btn zam-apply__btn--next'; next.setAttribute('aria-label', LANG==='en'?'Next image':'Nächstes Bild');
@@ -998,14 +1014,15 @@ document.addEventListener('DOMContentLoaded', () => {
             city:       (FORM.city?.value || '').trim(),
             country:    (FORM.country?.value || '').trim(),
             earliest_move_in: FORM.earliest_move_in?.value || '',
-            latest_move_in:   FORM.latest_move_in?.value || '',
+            latest_move_in:   '',
             pets:       FORM.pets?.value || '',
             smoker:     FORM.smoker?.value || '',
             
             parking:    FORM.parking?.value || '',
             
             how_did_you_hear: FORM.how_did_you_hear?.value || '',
-            viewing_times: (FORM.viewing_times?.value || '').trim(),
+            viewing_day: FORM.viewing_day?.value || '',
+            viewing_time: FORM.viewing_time?.value || '',
             
             privacy:    !!FORM.privacy?.checked,
             page_url:   hf('page_url')?.value || '',

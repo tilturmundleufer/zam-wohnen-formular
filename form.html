@@ -21,6 +21,7 @@
   data-ausrichtung="{{ ausrichtung_gesamt }}"
   data-status="{{ status }}"
   data-form-aktiv="{{ form_aktiv }}"
+  data-verfuegbar-ab="{{ verfuegbar_ab }}"
   data-img1="{{ bild_1.url }}"
   data-img2="{{ bild_2.url }}"
   data-img3="{{ bild_3.url }}"
@@ -33,6 +34,7 @@
     <div class="zam-apply__image" aria-hidden="true"></div>
     <h2 class="zam-apply__title">Jetzt bewerben – {{ name }}</h2>
     <p class="zam-apply__subtitle">Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.</p>
+    <p class="zam-apply__available"><strong>Verfügbar ab:</strong> <span id="availableFrom">—</span></p>
 
     <div class="zam-apply__info">
     <ul class="zam-apply__facts" aria-label="Wohnungsdetails">
@@ -113,11 +115,6 @@
         <label for="earliest_move_in">Frühester Einzug</label>
         <input id="earliest_move_in" name="earliest_move_in" type="date">
         <p class="error" data-for="earliest_move_in"></p>
-      </div>
-      <div class="field field--third">
-        <label for="latest_move_in">Spätester Einzug</label>
-        <input id="latest_move_in" name="latest_move_in" type="date">
-        <p class="error" data-for="latest_move_in"></p>
       </div>
 
       <div class="group-title field--full"><h3 id="grp-household">Haushalt & Einkommen</h3></div>
@@ -218,10 +215,19 @@
       </div>
 
       <div class="group-title field--full"><h3 id="grp-notes">Zusatzinformationen</h3></div>
-      <div class="field field--full">
-        <label for="viewing_times">Verfügbarkeit zur Besichtigung</label>
-        <textarea id="viewing_times" name="viewing_times" rows="3" placeholder="Bevorzugte Tage/Uhrzeiten"></textarea>
-        <p class="error" data-for="viewing_times"></p>
+      <div class="field field--third">
+        <label for="viewing_day">Verfügbarkeit zur Besichtigung – Tag</label>
+        <select id="viewing_day" name="viewing_day">
+          <option value="" disabled selected>Bitte wählen</option>
+        </select>
+        <p class="error" data-for="viewing_day"></p>
+      </div>
+      <div class="field field--third">
+        <label for="viewing_time">Verfügbarkeit zur Besichtigung – Tageszeit</label>
+        <select id="viewing_time" name="viewing_time">
+          <option value="" disabled selected>Bitte wählen</option>
+        </select>
+        <p class="error" data-for="viewing_time"></p>
       </div>
 
       <div class="checks field--full">
