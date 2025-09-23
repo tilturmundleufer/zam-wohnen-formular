@@ -336,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ['grp-notes','viewing_times','privacy']
     ];
     let currentStep = 0;
+    let isRestoringDraft = false;
     function isFieldValid(name){
       const el = getField(name);
       if (!el) return true;
@@ -426,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return null;
     }
     function checkAutoAdvance(){
+      if (isRestoringDraft) { updateControlsVisibility(); return; }
       // Update Sichtbarkeit für alle Controls
       updateControlsVisibility();
       // Auto-Advance nur für Steps MIT Pflichtfeldern
@@ -439,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     // Auf Eingaben reagieren
-    FORM.addEventListener('input', checkAutoAdvance, { passive: true });
+    FORM.addEventListener('input', (e)=>{ saveDraftDebounced(); checkAutoAdvance(); }, { passive: true });
     FORM.addEventListener('change', (e)=>{
       const t = e.target;
       if (!t) return;
@@ -449,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (t.tagName === 'SELECT' || t.type === 'checkbox' || t.type === 'date') {
         markConfirmed(name);
       }
+      saveDraftDebounced();
       lastInteractedStep = getStepIndexForField(name);
       checkAutoAdvance();
     }, { passive: true });
@@ -456,11 +459,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') {
         const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
         e.preventDefault(); // Enter soll nicht submitten zwischen Steps
+        saveDraftDebounced();
         checkAutoAdvance();
       }
     });
     FORM.addEventListener('blur', (e)=>{
       const t = e.target; const name = t?.name || t?.id; if (name) { markConfirmed(name); lastInteractedStep = getStepIndexForField(name); }
+      saveDraftDebounced();
       checkAutoAdvance();
     }, true);
 
@@ -478,6 +483,57 @@ document.addEventListener('DOMContentLoaded', () => {
       showStepOrig(idx);
       updateProgress();
     };
+
+    // ===== Draft-Persistenz (24h) =====
+    const DRAFT_KEY = `zam_apply_draft_${WRAP.dataset.unitId || 'global'}`;
+    function collectDraft(){
+      const data = {};
+      Array.from(FORM.elements).forEach(el => {
+        if (!el || !el.name) return;
+        if (el.type === 'submit' || el.type === 'button') return;
+        if (el.type === 'checkbox') data[el.name] = !!el.checked;
+        else data[el.name] = (el.value || '');
+      });
+      return data;
+    }
+    function applyDraft(data){
+      if (!data) return;
+      Object.keys(data).forEach(name => {
+        const el = getField(name);
+        if (!el) return;
+        const val = data[name];
+        if (el.type === 'checkbox') { el.checked = !!val; }
+        else { if (typeof val === 'string') el.value = val; }
+      });
+    }
+    function saveDraft(){
+      try {
+        const payload = { saved_at: Date.now(), data: collectDraft() };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+      } catch {}
+    }
+    const saveDraftDebounced = (()=>{ let t=null; return ()=>{ clearTimeout(t); t=setTimeout(saveDraft, 200); }; })();
+    function clearDraft(){ try { localStorage.removeItem(DRAFT_KEY); } catch {} }
+    function loadDraft(){
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !obj.saved_at || !obj.data) return null;
+        if ((Date.now() - obj.saved_at) > 24*60*60*1000) { localStorage.removeItem(DRAFT_KEY); return null; }
+        return obj.data;
+      } catch { return null; }
+    }
+    function findFirstIncompleteStep(){
+      for (let i=0; i<GROUPS.length; i++){
+        const names = GROUPS[i].slice(1);
+        for (const name of names){
+          if (!REQUIRED.includes(name)) continue;
+          if (!isFieldValid(name)) return i;
+        }
+      }
+      return GROUPS.length - 1;
+    }
 
     // ===== Meta aus data-* (vom selben Item) =====
     const meta = {
@@ -971,6 +1027,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (SUCCESS) SUCCESS.hidden = false;
           if (ERR) ERR.hidden = true;
           try { localStorage.setItem(cdKey, String(Date.now())); } catch {}
+          // Draft löschen nach erfolgreicher Absendung
+          clearDraft();
         } else {
           throw new Error('Response not OK');
         }
@@ -1085,6 +1143,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     })();
     // Multi-Step initial anzeigen
-    showStep(0);
+    // Draft laden und anwenden
+    (function restoreDraftIfAny(){
+      const data = loadDraft();
+      if (!data) { showStep(0); return; }
+      isRestoringDraft = true;
+      applyDraft(data);
+      // zum ersten unvollständigen Step springen
+      const startStep = findFirstIncompleteStep();
+      showStep(startStep);
+      isRestoringDraft = false;
+      updateControlsVisibility();
+    })();
   });
 });
