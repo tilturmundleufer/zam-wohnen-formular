@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
     // ===== Bild aus CMS binden =====
-    (function bindUnitGallery(){
+    (async function bindUnitGallery(){
       const IMG_WRAP = q('.zam-apply__image');
       if (!IMG_WRAP) return;
       // Quelle: Multi-Image-Block im Webflow-Item (hidden) mit Klasse .gallery-source
@@ -838,7 +838,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!s) return false;
         const v = String(s).trim();
         if (!v || v.includes('{{')) return false; // ungefülltes Template
-        return /^(https?:|\/\/|\/|data:image\//i.test(v);
+        return /^(https?:|\/\/|\/|data:image\/)/i.test(v);
       };
       const urls = [WRAP.dataset.img1, WRAP.dataset.img2, WRAP.dataset.img3]
         .map(v => (v||'').trim())
@@ -858,7 +858,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Slider-Markup
       const slider = document.createElement('div'); slider.className = 'zam-apply__slider';
       const track = document.createElement('div'); track.className = 'zam-apply__slides';
-      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; const im = document.createElement('img'); im.loading='lazy'; im.decoding='async'; im.src=u; s.appendChild(im); track.appendChild(s); });
+      // Preload und Slides erstellen
+      const preloaded = new Map();
+      await Promise.all(urls.map(u => new Promise((res)=>{ const img = new Image(); img.onload=()=>{ preloaded.set(u, true); res(); }; img.onerror=()=>res(); img.src=u; })));
+      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; const im = document.createElement('img'); im.loading='eager'; im.decoding='async'; im.src=u; s.appendChild(im); track.appendChild(s); });
       const nav = document.createElement('div'); nav.className = 'zam-apply__nav';
       const prev = document.createElement('button'); prev.type='button'; prev.className='zam-apply__btn zam-apply__btn--prev'; prev.setAttribute('aria-label', LANG==='en'?'Previous image':'Vorheriges Bild');
       const next = document.createElement('button'); next.type='button'; next.className='zam-apply__btn zam-apply__btn--next'; next.setAttribute('aria-label', LANG==='en'?'Next image':'Nächstes Bild');
