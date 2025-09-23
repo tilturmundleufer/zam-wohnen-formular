@@ -65,11 +65,11 @@
   .zam-form { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius); padding: clamp(12px, 1.6vw, 16px); box-shadow: var(--shadow-1); }
   .form-progress { position: relative; height: 6px; background: #f3f4f6; border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
   .form-progress__bar { height: 100%; width: 0%; background: var(--brand-accent); border-radius: 999px; transition: width .25s ease; }
-  .form-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); column-gap: 16px; row-gap: 10px; align-items: start; }
+  .form-grid { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); column-gap: 16px; row-gap: 10px; align-items: start; }
   .field--full { grid-column: 1 / -1; }
-  .field--half { grid-column: span 2; min-width: 0; }
-  .field--two-thirds { grid-column: span 3; }
-  .field--third { grid-column: span 1; }
+  .field--half { grid-column: span 3; min-width: 0; }
+  .field--two-thirds { grid-column: span 4; }
+  .field--third { grid-column: span 2; }
   
   /* Field-Karten: dezente Box je Feld */
   .field { background: #fff; border: 1px solid #eef0f4; border-radius: var(--radius-sm); padding: .6rem .7rem; }
