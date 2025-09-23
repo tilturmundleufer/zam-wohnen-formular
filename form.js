@@ -986,25 +986,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let sentOk = false;
         const bodyStr = JSON.stringify(payload);
-
         if (isWebhookConfigured) {
           try {
-            // Preflight vermeiden: safelisted Content-Type verwenden
-        const res = await fetch(MAKE_WEBHOOK_URL, {
-          method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-              body: bodyStr,
+            // Variante 1: multipart/form-data mit flachen Keys → Make.com erkennt Felder zuverlässig
+            const fd = new FormData();
+            const add = (k, v) => fd.append(k, v == null ? '' : String(v));
+            add('submitted_at', payload.submitted_at);
+            // Unit (geflacht)
+            add('unit_unit_id', meta.unit_id || '');
+            add('unit_name', meta.name || '');
+            add('unit_haus', meta.haus || '');
+            add('unit_stockwerk', meta.stockwerk || '');
+            add('unit_zimmer', meta.zimmer || '');
+            add('unit_wohnflaeche', meta.wohnflaeche || '');
+            add('unit_kaltmiete', meta.kaltmiete || '');
+            add('unit_nebenkosten', meta.nebenkosten || '');
+            add('unit_warmmiete', meta.warmmiete || '');
+            add('unit_ausrichtung', meta.ausrichtung || '');
+            add('unit_status', meta.status || '');
+            add('unit_form_aktiv', meta.form_aktiv || '');
+            // Form (geflacht)
+            Object.entries(payload.form).forEach(([k, v]) => add(`form_${k}`, v));
+            // Extras (geflacht)
+            if (extras && typeof extras === 'object') {
+              Object.entries(extras).forEach(([k, v]) => add(`extra_${k}`, v));
+            }
+            add('lang', payload.lang);
+            add('idempotency_key', payload.idempotency_key);
+            // Zusätzlich Roh-JSON als Debug-Feld
+            add('raw_json', bodyStr);
+
+            const res = await fetch(MAKE_WEBHOOK_URL, {
+              method: 'POST',
+              body: fd,
               mode: 'cors',
-          keepalive: true
-        });
+              keepalive: true
+            });
             sentOk = res.ok;
           } catch (err1) {
-            // 2) Fallback: sendBeacon (cross-origin erlaubt, text/plain)
+            // Fallback: text/plain + sendBeacon/no-cors
             try {
               const ok = navigator.sendBeacon && navigator.sendBeacon(MAKE_WEBHOOK_URL, new Blob([bodyStr], { type: 'text/plain;charset=UTF-8' }));
               if (ok) { sentOk = true; }
             } catch {}
-            // 3) Letzter Fallback: no-cors Fire-and-forget
             if (!sentOk) {
               try {
                 await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: bodyStr, mode: 'no-cors', keepalive: true });
@@ -1016,7 +1040,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } else {
-          // Kein Webhook konfiguriert -> simulierte Erfolgsmeldung (Dev/Preview)
           console.warn('[ZAM] Kein Webhook konfiguriert. Submission wird lokal simuliert.');
           sentOk = true;
         }
