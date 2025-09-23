@@ -110,7 +110,7 @@
   }
   .field input[type="date"]:hover { border-color: color-mix(in srgb, var(--brand-accent) 25%, var(--input-bd)); }
   /* WebKit: Standard-Icon unsichtbar, aber klickbar lassen */
-  .field input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; width: 0; height: 0; cursor: default; }
+  .field input[type="date"]::-webkit-calendar-picker-indicator { display: none !important; opacity: 0 !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
   /* WebKit: Innenleben etwas kompakter */
   .field input[type="date"]::-webkit-datetime-edit { padding: .15rem 0; }
   .field input[type="date"]::-webkit-inner-spin-button,

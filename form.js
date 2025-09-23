@@ -1160,7 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         wrap.appendChild(btn);
 
         let fp = null;
-        if (window.flatpickr) {
+        const initFP = () => {
           try {
             fp = window.flatpickr(input, {
               dateFormat: 'Y-m-d',
@@ -1171,35 +1171,25 @@ document.addEventListener('DOMContentLoaded', () => {
               disableMobile: true,
               clickOpens: true,
               appendTo: wrap,
-              positionElement: wrap
+              positionElement: wrap,
+              onReady: [function(){
+                if (input.value) {
+                  try { fp.setDate(input.value, false, 'Y-m-d'); } catch {}
+                }
+                const alt = wrap.querySelector('.flatpickr-input[readonly]');
+                if (alt) { alt.addEventListener('focus', openPicker, { passive: true }); alt.addEventListener('click', openPicker, { passive: true }); }
+              }]
             });
           } catch {}
-        }
+        };
+        if (window.flatpickr) initFP();
 
         // Hinweis: Native Picker auf Mobile unterdrücken (nur Flatpickr verwenden)
         try { input.readOnly = true; input.setAttribute('inputmode', 'none'); } catch {}
 
         const openPicker = () => {
           // Lazy-Init: falls Lib inzwischen verfügbar ist
-          if (!fp && window.flatpickr) {
-            try {
-              fp = window.flatpickr(input, {
-                dateFormat: 'Y-m-d',
-                altInput: true,
-                altFormat: LANG === 'en' ? 'M j, Y' : 'd.m.Y',
-                allowInput: true,
-                locale: (window.flatpickr && window.flatpickr.l10ns) ? (LANG === 'en' ? (window.flatpickr.l10ns.default || undefined) : (window.flatpickr.l10ns.de || window.flatpickr.l10ns.default || undefined)) : undefined,
-                disableMobile: true,
-                clickOpens: true,
-                appendTo: wrap,
-                positionElement: wrap,
-                onReady: [function(selectedDates, dateStr, instance){
-                  const alt = wrap.querySelector('.flatpickr-input[readonly]');
-                  if (alt) { alt.addEventListener('focus', openPicker, { passive: true }); alt.addEventListener('click', openPicker, { passive: true }); }
-                }]
-              });
-            } catch {}
-          }
+          if (!fp && window.flatpickr) initFP();
 
           if (fp && typeof fp.open === 'function') { fp.open(); return; }
           // Kein Fallback mehr auf nativen Datepicker
