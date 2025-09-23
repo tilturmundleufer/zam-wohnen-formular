@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Config =====
     const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
-    const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL) && !MAKE_WEBHOOK_URL.includes('https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4');
+    const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL);
     const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
