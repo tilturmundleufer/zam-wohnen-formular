@@ -216,7 +216,3 @@
     .amenity-sep { display: block; text-align: center; }
     .amenity-value { min-width: 0; }
   }
-  
-  @media (max-width: 1150px) {
-    .zam-apply__facts { grid-template-columns: repeat(4, minmax(0,1fr)); }
-  }
