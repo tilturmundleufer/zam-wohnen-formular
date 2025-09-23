@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setLabel('street', t.labels.street);
       setLabel('postal_code', t.labels.postal_code);
       setLabel('city', t.labels.city);
+      setLabel('country', LANG==='en' ? 'Country' : 'Land');
       setLabel('earliest_move_in', t.labels.earliest_move_in);
       setLabel('latest_move_in', t.labels.latest_move_in);
       setLabel('pets', t.labels.pets);
@@ -277,6 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setPH('street', t.placeholders.street);
       setPH('postal_code', t.placeholders.postal_code);
       setPH('city', t.placeholders.city);
+      const phCountry = LANG==='en' ? 'Germany' : 'Deutschland';
+      setPH('country', phCountry);
       const vt = q('#viewing_times'); if (vt) vt.placeholder = t.placeholders.viewing_times;
       const co = q('#co_applicant_names'); if (co) co.placeholder = t.placeholders.co_applicant_names;
       const bud = q('#budget'); if (bud) bud.placeholder = t.placeholders.budget;
@@ -328,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ['grp-contact','full_name','email','phone'],
       ['grp-move','move_in','earliest_move_in','latest_move_in'],
       ['grp-household','occupants','income','employment'],
-      ['grp-address','street','postal_code','city'],
+      ['grp-address','street','postal_code','city','country'],
       ['grp-prefs','pets','how_did_you_hear','parking'],
       ['grp-notes','viewing_times','privacy']
     ];
@@ -902,6 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
             street:     (FORM.street?.value || '').trim(),
             postal_code: (FORM.postal_code?.value || '').trim(),
             city:       (FORM.city?.value || '').trim(),
+            country:    (FORM.country?.value || '').trim(),
             earliest_move_in: FORM.earliest_move_in?.value || '',
             latest_move_in:   FORM.latest_move_in?.value || '',
             pets:       FORM.pets?.value || '',
@@ -930,13 +934,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isWebhookConfigured) {
           try {
             // Preflight vermeiden: safelisted Content-Type verwenden
-            const res = await fetch(MAKE_WEBHOOK_URL, {
-              method: 'POST',
+        const res = await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
               body: bodyStr,
               mode: 'cors',
-              keepalive: true
-            });
+          keepalive: true
+        });
             sentOk = res.ok;
           } catch (err1) {
             // 2) Fallback: sendBeacon (cross-origin erlaubt, text/plain)
