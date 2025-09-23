@@ -198,10 +198,7 @@
   @media (max-width: 880px) {
     .zam-apply__facts { grid-template-columns: repeat(3, minmax(0,1fr)); }
     .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); column-gap: 14px; row-gap: 12px; }
-  }
-  @media (max-width: 880px) {
-    .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .field--half, .field--two-thirds, .field--full { grid-column: 1 / -1; }
+    .field--third, .field--half, .field--two-thirds, .field--full { grid-column: 1 / -1; }
   }
   @media (max-width: 680px) {
     .form-grid { grid-template-columns: 1fr; column-gap: 12px; row-gap: 12px; }
@@ -211,6 +208,8 @@
     .field input, .field select, .field textarea { padding: .6rem .75rem; }
     .form-steps-nav .btn, .form-actions .btn { width: 100%; }
     .zam-apply__image img { height: clamp(160px, 42vw, 240px); }
+    /* Alle Field-Klassen nehmen volle Breite auf Mobile */
+    .field--third, .field--half, .field--two-thirds, .field--full { grid-column: 1 / -1; }
     /* Amenities: Key-Spalte einheitlich breit, Trenner ausgerichtet */
     .amenities-list li { display: grid; grid-template-columns: minmax(120px, 38%) 1.2rem 1fr; gap: 6px; }
     .amenity-key { display: block; word-break: break-word; }
@@ -220,9 +219,4 @@
   
   @media (max-width: 1150px) {
     .zam-apply__facts { grid-template-columns: repeat(4, minmax(0,1fr)); }
-  }
-  @media (max-width: 680px) {
-    .form-grid { grid-template-columns: 1fr; }
-    .zam-apply__facts { grid-template-columns: 1fr 1fr; }
-    .zam-apply__facts li.wide { grid-column: 1 / -1; }
   }
