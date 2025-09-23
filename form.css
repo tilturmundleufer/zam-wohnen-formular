@@ -35,7 +35,7 @@
   .zam-apply__image { margin: 0 0 .75rem; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid #eef0f4; box-shadow: var(--shadow-1); position: relative; }
   .zam-apply__slider { position: relative; }
   .zam-apply__slides { display: flex; overflow: hidden; will-change: transform; transition: transform .35s ease; }
-  .zam-apply__slide { width: 100%; height: clamp(160px, 30vw, 360px); background-position: center; background-size: cover; background-repeat: no-repeat; }
+  .zam-apply__slide { flex: 0 0 100%; width: 100%; position: relative; height: clamp(160px, 30vw, 360px); background-position: center; background-size: cover; background-repeat: no-repeat; }
   .zam-apply__slide img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .zam-apply__nav { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; pointer-events: none; padding: .5rem; }
   .zam-apply__btn { pointer-events: all; background: #ffffffd9; border: 1px solid #eef0f4; width: 36px; height: 36px; border-radius: 999px; display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-1); }
@@ -67,7 +67,7 @@
   .form-progress__bar { height: 100%; width: 0%; background: var(--brand-accent); border-radius: 999px; transition: width .25s ease; }
   .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); column-gap: 16px; row-gap: 10px; align-items: start; }
   .field--full { grid-column: 1 / -1; }
-  .field--half { grid-column: span 2; }
+  .field--half { grid-column: span 2; min-width: 0; }
   .field--two-thirds { grid-column: span 2; }
   .field--third { grid-column: span 1; }
   
@@ -208,6 +208,11 @@
     .field input, .field select, .field textarea { padding: .6rem .75rem; }
     .form-steps-nav .btn, .form-actions .btn { width: 100%; }
     .zam-apply__image img { height: clamp(160px, 42vw, 240px); }
+    /* Amenities: Key-Spalte einheitlich breit, Trenner ausgerichtet */
+    .amenities-list li { display: grid; grid-template-columns: minmax(120px, 38%) 1.2rem 1fr; gap: 6px; }
+    .amenity-key { display: block; word-break: break-word; }
+    .amenity-sep { display: block; text-align: center; }
+    .amenity-value { min-width: 0; }
   }
   
   @media (max-width: 1150px) {

@@ -877,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Preload und Slides erstellen
       const preloaded = new Map();
       await Promise.all(urls.map(u => new Promise((res)=>{ const img = new Image(); img.onload=()=>{ preloaded.set(u, true); res(); }; img.onerror=()=>res(); img.src=u; })));
-      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; s.style.backgroundImage = `url(${JSON.stringify(u).slice(1,-1)})`; const im = document.createElement('img'); im.alt=''; im.loading='eager'; im.decoding='async'; im.src=u; im.style.opacity='0'; im.style.position='absolute'; im.style.pointerEvents='none'; s.appendChild(im); track.appendChild(s); });
+      urls.forEach((u) => { const s = document.createElement('div'); s.className = 'zam-apply__slide'; s.style.backgroundImage = `url("${u.replace(/"/g,'\\"')}")`; const im = document.createElement('img'); im.alt=''; im.loading='eager'; im.decoding='async'; im.src=u; im.style.opacity='0'; im.style.position='absolute'; im.style.pointerEvents='none'; s.appendChild(im); track.appendChild(s); });
       const nav = document.createElement('div'); nav.className = 'zam-apply__nav';
       const prev = document.createElement('button'); prev.type='button'; prev.className='zam-apply__btn zam-apply__btn--prev'; prev.setAttribute('aria-label', LANG==='en'?'Previous image':'Vorheriges Bild');
       const next = document.createElement('button'); next.type='button'; next.className='zam-apply__btn zam-apply__btn--next'; next.setAttribute('aria-label', LANG==='en'?'Next image':'Nächstes Bild');
