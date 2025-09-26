@@ -1475,20 +1475,38 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           if (moveInField && earliestMoveInField) {
             const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
-            if (moveInField.value && earliestMoveInOverlay) {
-              // Gewünschter Einzug ist bereits gesetzt: Overlay entfernen
-              earliestMoveInOverlay.remove();
+            const earliestMoveInFP = earliestMoveInField._flatpickr;
+            
+            if (moveInField.value) {
+              // Gewünschter Einzug ist bereits gesetzt: Overlay entfernen und Max-Datum setzen
+              if (earliestMoveInOverlay) {
+                earliestMoveInOverlay.remove();
+              }
+              // Flatpickr Max-Datum aktualisieren
+              if (earliestMoveInFP) {
+                const moveInDate = new Date(moveInField.value);
+                earliestMoveInFP.config.maxDate = moveInDate;
+                earliestMoveInFP.redraw();
+              }
             }
           }
         }, 200);
         
-        // Bei Änderungen des gewünschten Einzugs - direkte Overlay-Kontrolle
+        // Bei Änderungen des gewünschten Einzugs - direkte Overlay-Kontrolle + Flatpickr-Update
         const handleMoveInChange = () => {
           const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
+          const earliestMoveInFP = earliestMoveInField._flatpickr;
+          
           if (moveInField.value) {
-            // Gewünschter Einzug ist gesetzt: Overlay entfernen
+            // Gewünschter Einzug ist gesetzt: Overlay entfernen und Max-Datum setzen
             if (earliestMoveInOverlay) {
               earliestMoveInOverlay.remove();
+            }
+            // Flatpickr Max-Datum aktualisieren
+            if (earliestMoveInFP) {
+              const moveInDate = new Date(moveInField.value);
+              earliestMoveInFP.config.maxDate = moveInDate;
+              earliestMoveInFP.redraw();
             }
           } else {
             // Gewünschter Einzug ist leer: Overlay wieder hinzufügen
@@ -1507,6 +1525,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 border-radius: 6px;
               `;
               earliestMoveInField.parentNode?.appendChild(overlay);
+            }
+            // Flatpickr Max-Datum entfernen
+            if (earliestMoveInFP) {
+              earliestMoveInFP.config.maxDate = null;
+              earliestMoveInFP.redraw();
             }
           }
         };
@@ -1542,11 +1565,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const earliestMoveInField = getField('earliest_move_in');
         if (moveInField && earliestMoveInField) {
           const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
+          const earliestMoveInFP = earliestMoveInField._flatpickr;
           
           if (moveInField.value) {
-            // Gewünschter Einzug ist gesetzt: Overlay entfernen
+            // Gewünschter Einzug ist gesetzt: Overlay entfernen und Max-Datum setzen
             if (earliestMoveInOverlay) {
               earliestMoveInOverlay.remove();
+            }
+            // Flatpickr Max-Datum aktualisieren
+            if (earliestMoveInFP) {
+              const moveInDate = new Date(moveInField.value);
+              earliestMoveInFP.config.maxDate = moveInDate;
+              earliestMoveInFP.redraw();
             }
           }
         }
