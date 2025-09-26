@@ -1341,9 +1341,23 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.setAttribute('aria-label', LANG === 'en' ? 'Open calendar' : 'Kalender öffnen');
         wrap.appendChild(btn);
         
-        // Button auch deaktivieren wenn Feld deaktiviert ist
-        if (input.name === 'earliest_move_in' && !getField('move_in')?.value) {
-          btn.disabled = true;
+        // Overlay für earliest_move_in Feld
+        let overlay = null;
+        if (input.name === 'earliest_move_in') {
+          overlay = document.createElement('div');
+          overlay.className = 'date-overlay';
+          overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            cursor: not-allowed;
+            z-index: 10;
+            border-radius: 6px;
+          `;
+          wrap.appendChild(overlay);
         }
 
         let fp = null;
@@ -1362,10 +1376,6 @@ document.addEventListener('DOMContentLoaded', () => {
               minDate = availableFromDate;
               // Max-Datum wird dynamisch gesetzt, wenn gewünschter Einzug eingegeben wird
               disabled = !getField('move_in')?.value;
-              // HTML-Element auch deaktivieren
-              if (disabled) {
-                input.disabled = true;
-              }
             }
 
             fp = window.flatpickr(input, {
@@ -1397,8 +1407,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try { input.readOnly = true; input.setAttribute('inputmode', 'none'); } catch {}
 
         const openPicker = () => {
-          // Nicht öffnen wenn Feld deaktiviert ist
-          if (input.disabled) return;
+          // Nicht öffnen wenn Overlay vorhanden ist (earliest_move_in)
+          if (overlay && overlay.parentNode) return;
           
           // Lazy-Init: falls Lib inzwischen verfügbar ist
           if (!fp && window.flatpickr) initFP();
@@ -1425,26 +1435,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateEarliestMoveInConstraints = () => {
           const moveInValue = moveInField.value;
           const earliestMoveInFP = earliestMoveInField._flatpickr;
-          const earliestMoveInBtn = earliestMoveInField.parentNode?.querySelector('.date-trigger');
+          const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
           
           if (earliestMoveInFP) {
             if (moveInValue) {
-              // Gewünschter Einzug ist gesetzt: Frühester Einzug aktivieren und Max-Datum setzen
+              // Gewünschter Einzug ist gesetzt: Overlay entfernen und Max-Datum setzen
               const moveInDate = new Date(moveInValue);
               earliestMoveInFP.config.maxDate = moveInDate;
               earliestMoveInFP.config.disabled = false;
-              earliestMoveInField.disabled = false;
-              // Button auch aktivieren
-              if (earliestMoveInBtn) {
-                earliestMoveInBtn.disabled = false;
+              // Overlay entfernen
+              if (earliestMoveInOverlay) {
+                earliestMoveInOverlay.remove();
               }
             } else {
-              // Gewünschter Einzug ist leer: Frühester Einzug deaktivieren
+              // Gewünschter Einzug ist leer: Overlay wieder hinzufügen
               earliestMoveInFP.config.disabled = true;
-              earliestMoveInField.disabled = true;
-              // Button auch deaktivieren
-              if (earliestMoveInBtn) {
-                earliestMoveInBtn.disabled = true;
+              if (!earliestMoveInOverlay) {
+                const overlay = document.createElement('div');
+                overlay.className = 'date-overlay';
+                overlay.style.cssText = `
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  bottom: 0;
+                  background: rgba(0, 0, 0, 0.1);
+                  cursor: not-allowed;
+                  z-index: 10;
+                  border-radius: 6px;
+                `;
+                earliestMoveInField.parentNode?.appendChild(overlay);
               }
             }
             earliestMoveInFP.redraw();
