@@ -1340,6 +1340,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.type = 'button'; btn.className = 'date-trigger';
         btn.setAttribute('aria-label', LANG === 'en' ? 'Open calendar' : 'Kalender öffnen');
         wrap.appendChild(btn);
+        
+        // Button auch deaktivieren wenn Feld deaktiviert ist
+        if (input.name === 'earliest_move_in' && !getField('move_in')?.value) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.pointerEvents = 'none';
+        }
 
         let fp = null;
         const initFP = () => {
@@ -1357,6 +1364,12 @@ document.addEventListener('DOMContentLoaded', () => {
               minDate = availableFromDate;
               // Max-Datum wird dynamisch gesetzt, wenn gewünschter Einzug eingegeben wird
               disabled = !getField('move_in')?.value;
+              // HTML-Element auch deaktivieren
+              if (disabled) {
+                input.disabled = true;
+                input.style.opacity = '0.5';
+                input.style.pointerEvents = 'none';
+              }
             }
 
             fp = window.flatpickr(input, {
@@ -1388,6 +1401,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try { input.readOnly = true; input.setAttribute('inputmode', 'none'); } catch {}
 
         const openPicker = () => {
+          // Nicht öffnen wenn Feld deaktiviert ist
+          if (input.disabled) return;
+          
           // Lazy-Init: falls Lib inzwischen verfügbar ist
           if (!fp && window.flatpickr) initFP();
 
@@ -1413,6 +1429,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateEarliestMoveInConstraints = () => {
           const moveInValue = moveInField.value;
           const earliestMoveInFP = earliestMoveInField._flatpickr;
+          const earliestMoveInBtn = earliestMoveInField.parentNode?.querySelector('.date-trigger');
           
           if (earliestMoveInFP) {
             if (moveInValue) {
@@ -1423,12 +1440,24 @@ document.addEventListener('DOMContentLoaded', () => {
               earliestMoveInField.disabled = false;
               earliestMoveInField.style.opacity = '1';
               earliestMoveInField.style.pointerEvents = 'auto';
+              // Button auch aktivieren
+              if (earliestMoveInBtn) {
+                earliestMoveInBtn.disabled = false;
+                earliestMoveInBtn.style.opacity = '1';
+                earliestMoveInBtn.style.pointerEvents = 'auto';
+              }
             } else {
               // Gewünschter Einzug ist leer: Frühester Einzug deaktivieren
               earliestMoveInFP.config.disabled = true;
               earliestMoveInField.disabled = true;
               earliestMoveInField.style.opacity = '0.5';
               earliestMoveInField.style.pointerEvents = 'none';
+              // Button auch deaktivieren
+              if (earliestMoveInBtn) {
+                earliestMoveInBtn.disabled = true;
+                earliestMoveInBtn.style.opacity = '0.5';
+                earliestMoveInBtn.style.pointerEvents = 'none';
+              }
             }
             earliestMoveInFP.redraw();
           }
