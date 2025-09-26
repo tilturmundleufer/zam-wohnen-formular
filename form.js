@@ -1471,12 +1471,20 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
 
-        // Initiale Konfiguration
-        updateEarliestMoveInConstraints();
+        // Initiale Konfiguration - mit Verzögerung, damit Flatpickr initialisiert ist
+        setTimeout(updateEarliestMoveInConstraints, 200);
         
         // Bei Änderungen des gewünschten Einzugs
         moveInField.addEventListener('change', updateEarliestMoveInConstraints);
         moveInField.addEventListener('input', updateEarliestMoveInConstraints);
+        
+        // Auch bei Draft-Wiederherstellung prüfen
+        const originalApplyDraft = applyDraft;
+        applyDraft = function(data) {
+          originalApplyDraft(data);
+          // Kurze Verzögerung, damit die Felder gesetzt sind
+          setTimeout(updateEarliestMoveInConstraints, 100);
+        };
       }
     })();
     // Multi-Step initial anzeigen
@@ -1491,6 +1499,23 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(startStep);
       isRestoringDraft = false;
       updateControlsVisibility();
+      
+      // Nach Draft-Wiederherstellung auch die Datums-Constraints aktualisieren
+      setTimeout(() => {
+        const moveInField = getField('move_in');
+        const earliestMoveInField = getField('earliest_move_in');
+        if (moveInField && earliestMoveInField) {
+          const earliestMoveInFP = earliestMoveInField._flatpickr;
+          const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
+          
+          if (earliestMoveInFP && moveInField.value) {
+            // Gewünschter Einzug ist gesetzt: Overlay entfernen
+            if (earliestMoveInOverlay) {
+              earliestMoveInOverlay.remove();
+            }
+          }
+        }
+      }, 300);
     })();
   });
 });
