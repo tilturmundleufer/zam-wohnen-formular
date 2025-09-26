@@ -823,7 +823,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableFromRaw = WRAP?.dataset.verfuegbarAb || '';
     const availableFromFormatted = availableFromRaw || '—';
     setText('#availableFrom', availableFromFormatted);
-    setText('#fact-haus',  meta.haus);
     setText('#fact-stock', meta.stockwerk);
     setText('#fact-rooms', meta.zimmer);
     setText('#fact-size',  meta.wohnflaeche ? (meta.wohnflaeche + ' m²') : '');
