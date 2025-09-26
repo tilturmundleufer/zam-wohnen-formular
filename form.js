@@ -368,8 +368,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name === 'move_in') {
           // Gewünschter Einzug: muss >= verfügbar-ab sein
           if (availableFrom) {
-            const availableFromDate = new Date(availableFrom);
-            return date >= availableFromDate;
+            const parts = availableFrom.split('.');
+            if (parts.length === 3) {
+              const day = parts[0].padStart(2, '0');
+              const month = parts[1].padStart(2, '0');
+              const year = parts[2];
+              const isoDate = `${year}-${month}-${day}`;
+              const availableFromDate = new Date(isoDate);
+              return date >= availableFromDate;
+            }
           }
         } else if (name === 'earliest_move_in') {
           // Frühester Einzug: muss zwischen verfügbar-ab und gewünschtem Einzug sein
@@ -378,8 +385,15 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const moveInDate = new Date(moveInField.value);
           if (availableFrom) {
-            const availableFromDate = new Date(availableFrom);
-            return date >= availableFromDate && date <= moveInDate;
+            const parts = availableFrom.split('.');
+            if (parts.length === 3) {
+              const day = parts[0].padStart(2, '0');
+              const month = parts[1].padStart(2, '0');
+              const year = parts[2];
+              const isoDate = `${year}-${month}-${day}`;
+              const availableFromDate = new Date(isoDate);
+              return date >= availableFromDate && date <= moveInDate;
+            }
           }
           return date <= moveInDate;
         }
@@ -462,12 +476,19 @@ document.addEventListener('DOMContentLoaded', () => {
           
           if (name === 'move_in' && availableFrom) {
             const date = new Date(el.value);
-            const availableFromDate = new Date(availableFrom);
-            if (date < availableFromDate) {
-              ok = false; 
-              showError(name, LANG === 'en' ? 'Move-in date must be on or after availability date' : 'Einzugsdatum muss am oder nach dem Verfügbarkeitsdatum liegen'); 
-              if (!firstInvalid) firstInvalid = el; 
-              return;
+            const parts = availableFrom.split('.');
+            if (parts.length === 3) {
+              const day = parts[0].padStart(2, '0');
+              const month = parts[1].padStart(2, '0');
+              const year = parts[2];
+              const isoDate = `${year}-${month}-${day}`;
+              const availableFromDate = new Date(isoDate);
+              if (date < availableFromDate) {
+                ok = false; 
+                showError(name, LANG === 'en' ? 'Move-in date must be on or after availability date' : 'Einzugsdatum muss am oder nach dem Verfügbarkeitsdatum liegen'); 
+                if (!firstInvalid) firstInvalid = el; 
+                return;
+              }
             }
           } else if (name === 'earliest_move_in') {
             const moveInField = getField('move_in');
@@ -488,12 +509,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (availableFrom) {
-              const availableFromDate = new Date(availableFrom);
-              if (date < availableFromDate) {
-                ok = false; 
-                showError(name, LANG === 'en' ? 'Earliest move-in must be on or after availability date' : 'Frühester Einzug muss am oder nach dem Verfügbarkeitsdatum liegen'); 
-                if (!firstInvalid) firstInvalid = el; 
-                return;
+              const parts = availableFrom.split('.');
+              if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                const year = parts[2];
+                const isoDate = `${year}-${month}-${day}`;
+                const availableFromDate = new Date(isoDate);
+                if (date < availableFromDate) {
+                  ok = false; 
+                  showError(name, LANG === 'en' ? 'Earliest move-in must be on or after availability date' : 'Frühester Einzug muss am oder nach dem Verfügbarkeitsdatum liegen'); 
+                  if (!firstInvalid) firstInvalid = el; 
+                  return;
+                }
               }
             }
           }
@@ -791,7 +819,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Facts füllen (lokal) =====
-    setText('#availableFrom', WRAP?.dataset.verfuegbarAb || '—');
+    // Verfügbar ab Datum formatieren (DD.MM.JJJJ -> DD.MM.JJJJ)
+    const availableFromRaw = WRAP?.dataset.verfuegbarAb || '';
+    const availableFromFormatted = availableFromRaw || '—';
+    setText('#availableFrom', availableFromFormatted);
     setText('#fact-haus',  meta.haus);
     setText('#fact-stock', meta.stockwerk);
     setText('#fact-rooms', meta.zimmer);
@@ -1281,9 +1312,20 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadJS('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js');
       } catch {}
 
-      // Verfügbar-ab Datum aus data-* Attribut
+      // Verfügbar-ab Datum aus data-* Attribut (Format: DD.MM.JJJJ)
       const availableFrom = WRAP.dataset.verfuegbarAb || '';
-      const availableFromDate = availableFrom ? new Date(availableFrom) : null;
+      let availableFromDate = null;
+      if (availableFrom) {
+        // Konvertiere DD.MM.JJJJ zu YYYY-MM-DD für Date-Objekt
+        const parts = availableFrom.split('.');
+        if (parts.length === 3) {
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          const year = parts[2];
+          const isoDate = `${year}-${month}-${day}`;
+          availableFromDate = new Date(isoDate);
+        }
+      }
 
       dates.forEach((input) => {
         if (!input || input.dataset.enhanced === '1') return;
