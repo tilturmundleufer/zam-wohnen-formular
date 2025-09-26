@@ -359,6 +359,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!el.value) return false;
       if (name === 'email') return isEmail(el.value);
       if (name === 'phone') return isPhoneLike(el.value);
+      
+      // Datumsvalidierung
+      if (el.type === 'date' && el.value) {
+        const date = new Date(el.value);
+        const availableFrom = WRAP.dataset.verfuegbarAb;
+        
+        if (name === 'move_in') {
+          // Gewünschter Einzug: muss >= verfügbar-ab sein
+          if (availableFrom) {
+            const availableFromDate = new Date(availableFrom);
+            return date >= availableFromDate;
+          }
+        } else if (name === 'earliest_move_in') {
+          // Frühester Einzug: muss zwischen verfügbar-ab und gewünschtem Einzug sein
+          const moveInField = getField('move_in');
+          if (!moveInField?.value) return false; // Muss gewünschter Einzug gesetzt sein
+          
+          const moveInDate = new Date(moveInField.value);
+          if (availableFrom) {
+            const availableFromDate = new Date(availableFrom);
+            return date >= availableFromDate && date <= moveInDate;
+          }
+          return date <= moveInDate;
+        }
+      }
+      
       return true;
     }
     // Tracke pro Feld, ob der Benutzer die Eingabe bewusst "bestätigt" hat
@@ -429,6 +455,49 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!el.value && el.type !== 'checkbox') { ok = false; showError(name, I18N[LANG].errs.required); if (!firstInvalid) firstInvalid = el; return; }
         if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, I18N[LANG].errs.email); if (!firstInvalid) firstInvalid = el; return; }
         if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, I18N[LANG].errs.phone); if (!firstInvalid) firstInvalid = el; return; }
+        
+        // Datumsvalidierung
+        if (el.type === 'date' && el.value) {
+          const availableFrom = WRAP.dataset.verfuegbarAb;
+          
+          if (name === 'move_in' && availableFrom) {
+            const date = new Date(el.value);
+            const availableFromDate = new Date(availableFrom);
+            if (date < availableFromDate) {
+              ok = false; 
+              showError(name, LANG === 'en' ? 'Move-in date must be on or after availability date' : 'Einzugsdatum muss am oder nach dem Verfügbarkeitsdatum liegen'); 
+              if (!firstInvalid) firstInvalid = el; 
+              return;
+            }
+          } else if (name === 'earliest_move_in') {
+            const moveInField = getField('move_in');
+            if (!moveInField?.value) {
+              ok = false; 
+              showError(name, LANG === 'en' ? 'Please select desired move-in date first' : 'Bitte wählen Sie zuerst das gewünschte Einzugsdatum'); 
+              if (!firstInvalid) firstInvalid = el; 
+              return;
+            }
+            
+            const date = new Date(el.value);
+            const moveInDate = new Date(moveInField.value);
+            if (date > moveInDate) {
+              ok = false; 
+              showError(name, LANG === 'en' ? 'Earliest move-in must be on or before desired move-in date' : 'Frühester Einzug muss am oder vor dem gewünschten Einzugsdatum liegen'); 
+              if (!firstInvalid) firstInvalid = el; 
+              return;
+            }
+            
+            if (availableFrom) {
+              const availableFromDate = new Date(availableFrom);
+              if (date < availableFromDate) {
+                ok = false; 
+                showError(name, LANG === 'en' ? 'Earliest move-in must be on or after availability date' : 'Frühester Einzug muss am oder nach dem Verfügbarkeitsdatum liegen'); 
+                if (!firstInvalid) firstInvalid = el; 
+                return;
+              }
+            }
+          }
+        }
       });
       if (!ok && firstInvalid && typeof firstInvalid.focus === 'function') firstInvalid.focus();
       return ok;
@@ -1212,6 +1281,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadJS('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js');
       } catch {}
 
+      // Verfügbar-ab Datum aus data-* Attribut
+      const availableFrom = WRAP.dataset.verfuegbarAb || '';
+      const availableFromDate = availableFrom ? new Date(availableFrom) : null;
+
       dates.forEach((input) => {
         if (!input || input.dataset.enhanced === '1') return;
         input.dataset.enhanced = '1';
@@ -1229,6 +1302,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let fp = null;
         const initFP = () => {
           try {
+            // Datumsbeschränkungen basierend auf Feldname
+            let minDate = null;
+            let maxDate = null;
+            let disabled = false;
+
+            if (input.name === 'move_in') {
+              // Gewünschter Einzug: mindestens verfügbar-ab Datum
+              minDate = availableFromDate;
+            } else if (input.name === 'earliest_move_in') {
+              // Frühester Einzug: zwischen verfügbar-ab und gewünschtem Einzug
+              minDate = availableFromDate;
+              // Max-Datum wird dynamisch gesetzt, wenn gewünschter Einzug eingegeben wird
+              disabled = !getField('move_in')?.value;
+            }
+
             fp = window.flatpickr(input, {
               dateFormat: 'Y-m-d',
               altInput: true,
@@ -1239,6 +1327,9 @@ document.addEventListener('DOMContentLoaded', () => {
               clickOpens: true,
               appendTo: wrap,
               positionElement: wrap,
+              minDate: minDate,
+              maxDate: maxDate,
+              disabled: disabled,
               onReady: [function(){
                 if (input.value) {
                   try { fp.setDate(input.value, false, 'Y-m-d'); } catch {}
@@ -1271,6 +1362,43 @@ document.addEventListener('DOMContentLoaded', () => {
           if (alt) { alt.addEventListener('focus', openPicker, { passive: true }); alt.addEventListener('click', openPicker, { passive: true }); }
         }, 0);
       });
+
+      // Event-Listener für Abhängigkeiten zwischen Datumsfeldern
+      const moveInField = getField('move_in');
+      const earliestMoveInField = getField('earliest_move_in');
+      
+      if (moveInField && earliestMoveInField) {
+        const updateEarliestMoveInConstraints = () => {
+          const moveInValue = moveInField.value;
+          const earliestMoveInFP = earliestMoveInField._flatpickr;
+          
+          if (earliestMoveInFP) {
+            if (moveInValue) {
+              // Gewünschter Einzug ist gesetzt: Frühester Einzug aktivieren und Max-Datum setzen
+              const moveInDate = new Date(moveInValue);
+              earliestMoveInFP.config.maxDate = moveInDate;
+              earliestMoveInFP.config.disabled = false;
+              earliestMoveInField.disabled = false;
+              earliestMoveInField.style.opacity = '1';
+              earliestMoveInField.style.pointerEvents = 'auto';
+            } else {
+              // Gewünschter Einzug ist leer: Frühester Einzug deaktivieren
+              earliestMoveInFP.config.disabled = true;
+              earliestMoveInField.disabled = true;
+              earliestMoveInField.style.opacity = '0.5';
+              earliestMoveInField.style.pointerEvents = 'none';
+            }
+            earliestMoveInFP.redraw();
+          }
+        };
+
+        // Initiale Konfiguration
+        updateEarliestMoveInConstraints();
+        
+        // Bei Änderungen des gewünschten Einzugs
+        moveInField.addEventListener('change', updateEarliestMoveInConstraints);
+        moveInField.addEventListener('input', updateEarliestMoveInConstraints);
+      }
     })();
     // Multi-Step initial anzeigen
     // Draft laden und anwenden
