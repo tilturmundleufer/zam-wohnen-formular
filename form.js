@@ -1344,8 +1344,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Button auch deaktivieren wenn Feld deaktiviert ist
         if (input.name === 'earliest_move_in' && !getField('move_in')?.value) {
           btn.disabled = true;
-          btn.style.opacity = '0.5';
-          btn.style.pointerEvents = 'none';
         }
 
         let fp = null;
@@ -1367,8 +1365,6 @@ document.addEventListener('DOMContentLoaded', () => {
               // HTML-Element auch deaktivieren
               if (disabled) {
                 input.disabled = true;
-                input.style.opacity = '0.5';
-                input.style.pointerEvents = 'none';
               }
             }
 
@@ -1438,25 +1434,17 @@ document.addEventListener('DOMContentLoaded', () => {
               earliestMoveInFP.config.maxDate = moveInDate;
               earliestMoveInFP.config.disabled = false;
               earliestMoveInField.disabled = false;
-              earliestMoveInField.style.opacity = '1';
-              earliestMoveInField.style.pointerEvents = 'auto';
               // Button auch aktivieren
               if (earliestMoveInBtn) {
                 earliestMoveInBtn.disabled = false;
-                earliestMoveInBtn.style.opacity = '1';
-                earliestMoveInBtn.style.pointerEvents = 'auto';
               }
             } else {
               // Gewünschter Einzug ist leer: Frühester Einzug deaktivieren
               earliestMoveInFP.config.disabled = true;
               earliestMoveInField.disabled = true;
-              earliestMoveInField.style.opacity = '0.5';
-              earliestMoveInField.style.pointerEvents = 'none';
               // Button auch deaktivieren
               if (earliestMoveInBtn) {
                 earliestMoveInBtn.disabled = true;
-                earliestMoveInBtn.style.opacity = '0.5';
-                earliestMoveInBtn.style.pointerEvents = 'none';
               }
             }
             earliestMoveInFP.redraw();
