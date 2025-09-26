@@ -1477,6 +1477,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
             const earliestMoveInFP = earliestMoveInField._flatpickr;
             
+            // Immer Min-Datum setzen (Verfügbar ab)
+            if (earliestMoveInFP && availableFromDate) {
+              earliestMoveInFP.config.minDate = availableFromDate;
+            }
+            
             if (moveInField.value) {
               // Gewünschter Einzug ist bereits gesetzt: Overlay entfernen und Max-Datum setzen
               if (earliestMoveInOverlay) {
@@ -1488,6 +1493,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 earliestMoveInFP.config.maxDate = moveInDate;
                 earliestMoveInFP.redraw();
               }
+            } else {
+              // Gewünschter Einzug ist leer: Max-Datum entfernen
+              if (earliestMoveInFP) {
+                earliestMoveInFP.config.maxDate = null;
+                earliestMoveInFP.redraw();
+              }
             }
           }
         }, 200);
@@ -1496,6 +1507,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleMoveInChange = () => {
           const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
           const earliestMoveInFP = earliestMoveInField._flatpickr;
+          
+          // Immer Min-Datum setzen (Verfügbar ab)
+          if (earliestMoveInFP && availableFromDate) {
+            earliestMoveInFP.config.minDate = availableFromDate;
+          }
           
           if (moveInField.value) {
             // Gewünschter Einzug ist gesetzt: Overlay entfernen und Max-Datum setzen
@@ -1567,6 +1583,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
           const earliestMoveInFP = earliestMoveInField._flatpickr;
           
+          // Immer Min-Datum setzen (Verfügbar ab)
+          if (earliestMoveInFP && availableFromDate) {
+            earliestMoveInFP.config.minDate = availableFromDate;
+          }
+          
           if (moveInField.value) {
             // Gewünschter Einzug ist gesetzt: Overlay entfernen und Max-Datum setzen
             if (earliestMoveInOverlay) {
@@ -1576,6 +1597,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (earliestMoveInFP) {
               const moveInDate = new Date(moveInField.value);
               earliestMoveInFP.config.maxDate = moveInDate;
+              earliestMoveInFP.redraw();
+            }
+          } else {
+            // Gewünschter Einzug ist leer: Max-Datum entfernen
+            if (earliestMoveInFP) {
+              earliestMoveInFP.config.maxDate = null;
               earliestMoveInFP.redraw();
             }
           }
