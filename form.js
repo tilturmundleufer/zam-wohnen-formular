@@ -826,10 +826,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('#fact-stock', meta.stockwerk);
     setText('#fact-rooms', meta.zimmer);
     setText('#fact-size',  meta.wohnflaeche ? (meta.wohnflaeche + ' m²') : '');
+    setText('#fact-orient',meta.ausrichtung);
+    setText('#fact-haus',  meta.haus);
     setText('#fact-warm',  currency(meta.warmmiete));
     setText('#fact-cold',  currency(meta.kaltmiete));
     setText('#fact-nk',    currency(meta.nebenkosten));
-    setText('#fact-orient',meta.ausrichtung);
 
     // ===== RTE-Scrape: nur vom selben Collection-Item =====
     const container = WRAP.closest('.collection-item') || WRAP;
