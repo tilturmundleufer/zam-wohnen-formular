@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         selects: {
           employment: ['Bitte wählen','Angestellt (unbefristet)','Angestellt (befristet)','Selbstständig/Freiberuflich','Studierend/Auszubildend','Sonstiges'],
-          pets: ['Bitte wählen','Nein','Kleine Haustiere (nach Absprache)'],
+          pets: ['Bitte wählen','Nein','Ja'],
           
           
           parking: ['Bitte wählen','Kein Bedarf','Außenstellplatz','Tiefgarage'],
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         selects: {
           employment: ['Please choose','Employed (permanent)','Employed (fixed-term)','Self-employed/Freelance','Student/Apprentice','Other'],
-          pets: ['Please choose','No','Small pets (upon approval)'],
+          pets: ['Please choose','No','Yes'],
           
           
           parking: ['Please choose','No need','Outdoor space','Underground parking'],
