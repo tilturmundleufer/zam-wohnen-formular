@@ -1472,18 +1472,54 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Initiale Konfiguration - mit Verzögerung, damit Flatpickr initialisiert ist
-        setTimeout(updateEarliestMoveInConstraints, 200);
+        setTimeout(() => {
+          if (moveInField && earliestMoveInField) {
+            const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
+            if (moveInField.value && earliestMoveInOverlay) {
+              // Gewünschter Einzug ist bereits gesetzt: Overlay entfernen
+              earliestMoveInOverlay.remove();
+            }
+          }
+        }, 200);
         
-        // Bei Änderungen des gewünschten Einzugs
-        moveInField.addEventListener('change', updateEarliestMoveInConstraints);
-        moveInField.addEventListener('input', updateEarliestMoveInConstraints);
+        // Bei Änderungen des gewünschten Einzugs - direkte Overlay-Kontrolle
+        const handleMoveInChange = () => {
+          const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
+          if (moveInField.value) {
+            // Gewünschter Einzug ist gesetzt: Overlay entfernen
+            if (earliestMoveInOverlay) {
+              earliestMoveInOverlay.remove();
+            }
+          } else {
+            // Gewünschter Einzug ist leer: Overlay wieder hinzufügen
+            if (!earliestMoveInOverlay) {
+              const overlay = document.createElement('div');
+              overlay.className = 'date-overlay';
+              overlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.1);
+                cursor: not-allowed;
+                z-index: 10;
+                border-radius: 6px;
+              `;
+              earliestMoveInField.parentNode?.appendChild(overlay);
+            }
+          }
+        };
+        
+        moveInField.addEventListener('change', handleMoveInChange);
+        moveInField.addEventListener('input', handleMoveInChange);
         
         // Auch bei Draft-Wiederherstellung prüfen
         const originalApplyDraft = applyDraft;
         applyDraft = function(data) {
           originalApplyDraft(data);
           // Kurze Verzögerung, damit die Felder gesetzt sind
-          setTimeout(updateEarliestMoveInConstraints, 100);
+          setTimeout(handleMoveInChange, 100);
         };
       }
     })();
@@ -1505,10 +1541,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const moveInField = getField('move_in');
         const earliestMoveInField = getField('earliest_move_in');
         if (moveInField && earliestMoveInField) {
-          const earliestMoveInFP = earliestMoveInField._flatpickr;
           const earliestMoveInOverlay = earliestMoveInField.parentNode?.querySelector('.date-overlay');
           
-          if (earliestMoveInFP && moveInField.value) {
+          if (moveInField.value) {
             // Gewünschter Einzug ist gesetzt: Overlay entfernen
             if (earliestMoveInOverlay) {
               earliestMoveInOverlay.remove();
