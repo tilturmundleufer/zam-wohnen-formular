@@ -1164,7 +1164,8 @@ document.addEventListener('DOMContentLoaded', () => {
           else extras[name] = (el.value || '').toString();
         });
 
-        const payload = {
+        // Grundformular aufbauen
+        const formObj = {
           submitted_at: new Date().toISOString(),
           unit: meta,
           form: {
@@ -1175,7 +1176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             occupants:  FORM.occupants?.value || '',
             income:     FORM.income?.value || '',
             employment: FORM.employment?.value || '',
-            
             street:     (FORM.street?.value || '').trim(),
             postal_code: (FORM.postal_code?.value || '').trim(),
             city:       (FORM.city?.value || '').trim(),
@@ -1184,20 +1184,32 @@ document.addEventListener('DOMContentLoaded', () => {
             latest_move_in:   '',
             pets:       FORM.pets?.value || '',
             smoker:     FORM.smoker?.value || '',
-            
             parking:    FORM.parking?.value || '',
-            
             how_did_you_hear: FORM.how_did_you_hear?.value || '',
             viewing_day: FORM.viewing_day?.value || '',
             viewing_time: FORM.viewing_time?.value || '',
-            
             privacy:    !!FORM.privacy?.checked,
             page_url:   hf('page_url')?.value || '',
             utm_source: hf('utm_source')?.value || '',
             utm_medium: hf('utm_medium')?.value || '',
             utm_campaign: hf('utm_campaign')?.value || '',
             utm_content:  hf('utm_content')?.value || ''
-          },
+          }
+        };
+
+        // Sonstiges-Felder in formObj.form ergänzen
+        if (Array.isArray(FORM._otherSelects) && FORM._otherSelects.length) {
+          FORM._otherSelects.forEach(({ baseName, otherName }) => {
+            const sel = getField(baseName);
+            const other = getField(otherName);
+            if (!sel || !other) return;
+            const isOther = /^(sonstiges|other)$/i.test((sel.value || '').trim()) || /^(sonstiges|other)$/i.test((sel.options[sel.selectedIndex]?.textContent||'').trim());
+            formObj.form[otherName] = isOther ? (other.value || '') : '';
+          });
+        }
+
+        const payload = {
+          ...formObj,
           lang: LANG,
           extras,
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
@@ -1302,6 +1314,80 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial i18n anwenden & dynamische Felder einfügen
     applyI18n();
     renderExtraFields();
+    // Selects mit "Sonstiges/Other" um Eingabefeld erweitern
+    (function enhanceSelectsWithOther(){
+      const OTHER_LABEL = (LANG === 'en') ? 'Please specify' : 'Bitte konkretisieren';
+      const OTHER_PLACEHOLDER = (LANG === 'en') ? 'Enter details' : 'Details eingeben';
+      const hasOtherOption = (sel) => Array.from(sel.options).some(o => /^(sonstiges|other)$/i.test((o.textContent||o.value||'').trim()));
+
+      // Tracke alle erweiterten Selects für Payload (am FORM verankern)
+      if (!FORM._otherSelects) FORM._otherSelects = [];
+      const otherSelects = FORM._otherSelects;
+
+      qa('select', FORM).forEach((sel) => {
+        if (!hasOtherOption(sel)) return;
+        const baseName = sel.name || sel.id;
+        if (!baseName) return;
+        const fieldWrap = sel.closest('.field') || sel.parentElement;
+        if (!fieldWrap) return;
+
+        const otherName = baseName + '_other';
+        if (getField(otherName)) return; // bereits vorhanden
+
+        // Wrapper-Input hinzufügen
+        const label = document.createElement('label');
+        label.setAttribute('for', otherName);
+        label.textContent = OTHER_LABEL;
+        label.hidden = true; // nur sichtbar, wenn aktiv
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = otherName;
+        input.name = otherName;
+        input.placeholder = OTHER_PLACEHOLDER;
+        input.hidden = true;
+
+        const err = document.createElement('p');
+        err.className = 'error';
+        err.dataset.for = otherName;
+        err.setAttribute('role', 'status');
+        err.setAttribute('aria-live', 'polite');
+        err.hidden = true;
+
+        // Einfügen direkt nach dem Select
+        fieldWrap.appendChild(label);
+        fieldWrap.appendChild(input);
+        fieldWrap.appendChild(err);
+
+        const toggleOther = () => {
+          const isOther = /^(sonstiges|other)$/i.test((sel.value || '').trim()) || /^(sonstiges|other)$/i.test((sel.options[sel.selectedIndex]?.textContent||'').trim());
+          label.hidden = !isOther;
+          input.hidden = !isOther;
+          err.hidden = !isOther;
+          if (isOther) {
+            // dynamisch als Pflichtfeld markieren
+            input.required = true;
+            if (!REQUIRED.includes(otherName)) REQUIRED.push(otherName);
+          } else {
+            input.required = false;
+            input.value = '';
+            // aus REQUIRED entfernen
+            const idx = REQUIRED.indexOf(otherName);
+            if (idx !== -1) REQUIRED.splice(idx,1);
+            // Fehler leeren
+            const e = getErrorEl(otherName); if (e) e.textContent = '';
+          }
+          updateControlsVisibility();
+        };
+
+        sel.addEventListener('change', toggleOther, { passive: true });
+        // Initialzustand setzen (bei Draft-Restore)
+        toggleOther();
+
+        otherSelects.push({ baseName, otherName });
+      });
+      // Keine zusätzliche Hook-Logik nötig – Submit-Handler liest FORM._otherSelects aus
+    })();
     // Datepicker: moderne UI via Flatpickr (mit Fallback auf native showPicker)
     (async function enhanceDatePickers(){
       const dates = qa('input[type="date"]', FORM);
@@ -1574,6 +1660,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(startStep);
       isRestoringDraft = false;
       updateControlsVisibility();
+      // Sichtbarkeit der Sonstiges-Felder nach Draft-Restore aktualisieren
+      if (typeof FORM._refreshOtherSelects === 'function') {
+        try { FORM._refreshOtherSelects(); } catch {}
+      }
       
       // Nach Draft-Wiederherstellung auch die Datums-Constraints aktualisieren
       setTimeout(() => {
