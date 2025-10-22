@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
     const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL);
-    const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'move_in', 'occupants', 'income', 'employment', 'privacy'];
+    const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
     // Sprache aus data-lang, URL (?lang=de/en) oder Browser ableiten
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Multi-Step: Gruppen definieren =====
     const GROUPS = [
       ['grp-contact','full_name','email','phone'],
-      ['grp-move','move_in','earliest_move_in'],
+      // ['grp-move','move_in','earliest_move_in'], // Einzug-Seite vorerst deaktiviert
       ['grp-household','occupants','income','employment'],
       ['grp-address','street','postal_code','city','country'],
       ['grp-prefs','pets','how_did_you_hear','parking'],
@@ -379,9 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } else if (name === 'earliest_move_in') {
-          // Frühester Einzug: muss zwischen verfügbar-ab und gewünschtem Einzug sein
+          // Frühester Einzug: muss zwischen verfügbar-ab und gewünschtem Einzug sein (optional)
           const moveInField = getField('move_in');
-          if (!moveInField?.value) return false; // Muss gewünschter Einzug gesetzt sein
+          if (!moveInField?.value) return true; // Kein gewünschter Einzug = OK
           
           const moveInDate = new Date(moveInField.value);
           if (availableFrom) {
@@ -409,14 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const group = GROUPS[idx] || [];
       const groupId = group[0];
       const names = group.slice(1);
-      // Spezialregel: Im Einzugs-Step erst weiter, wenn ALLE drei Datumsfelder gesetzt sind
-      if (groupId === 'grp-move') {
-        const mustHave = ['move_in','earliest_move_in'];
-        return mustHave.every(n => {
-          const el = getField(n);
-          return el && !!el.value;
-        });
-      }
+      // Spezialregel für Einzugs-Step entfernt (Step ist deaktiviert)
       for (const name of names) {
         if (!REQUIRED.includes(name)) continue;
         if (!isFieldValid(name) || !isFieldConfirmed(name)) return false;
@@ -470,8 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name === 'email' && !isEmail(el.value)) { ok = false; showError(name, I18N[LANG].errs.email); if (!firstInvalid) firstInvalid = el; return; }
         if (name === 'phone' && !isPhoneLike(el.value)) { ok = false; showError(name, I18N[LANG].errs.phone); if (!firstInvalid) firstInvalid = el; return; }
         
-        // Datumsvalidierung
-        if (el.type === 'date' && el.value) {
+        // Datumsvalidierung (nur für optionale Einzug-Felder)
+        if (el.type === 'date' && el.value && (name === 'move_in' || name === 'earliest_move_in')) {
           const availableFrom = WRAP.dataset.verfuegbarAb;
           
           if (name === 'move_in' && availableFrom) {
@@ -492,35 +485,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           } else if (name === 'earliest_move_in') {
             const moveInField = getField('move_in');
-            if (!moveInField?.value) {
-              ok = false; 
-              showError(name, LANG === 'en' ? 'Please select desired move-in date first' : 'Bitte wählen Sie zuerst das gewünschte Einzugsdatum'); 
-              if (!firstInvalid) firstInvalid = el; 
-              return;
-            }
-            
-            const date = new Date(el.value);
-            const moveInDate = new Date(moveInField.value);
-            if (date > moveInDate) {
-              ok = false; 
-              showError(name, LANG === 'en' ? 'Earliest move-in must be on or before desired move-in date' : 'Frühester Einzug muss am oder vor dem gewünschten Einzugsdatum liegen'); 
-              if (!firstInvalid) firstInvalid = el; 
-              return;
-            }
-            
-            if (availableFrom) {
-              const parts = availableFrom.split('.');
-              if (parts.length === 3) {
-                const day = parts[0].padStart(2, '0');
-                const month = parts[1].padStart(2, '0');
-                const year = parts[2];
-                const isoDate = `${year}-${month}-${day}`;
-                const availableFromDate = new Date(isoDate);
-                if (date < availableFromDate) {
-                  ok = false; 
-                  showError(name, LANG === 'en' ? 'Earliest move-in must be on or after availability date' : 'Frühester Einzug muss am oder nach dem Verfügbarkeitsdatum liegen'); 
-                  if (!firstInvalid) firstInvalid = el; 
-                  return;
+            if (moveInField?.value) { // Nur validieren wenn gewünschter Einzug gesetzt ist
+              const date = new Date(el.value);
+              const moveInDate = new Date(moveInField.value);
+              if (date > moveInDate) {
+                ok = false; 
+                showError(name, LANG === 'en' ? 'Earliest move-in must be on or before desired move-in date' : 'Frühester Einzug muss am oder vor dem gewünschten Einzugsdatum liegen'); 
+                if (!firstInvalid) firstInvalid = el; 
+                return;
+              }
+              
+              if (availableFrom) {
+                const parts = availableFrom.split('.');
+                if (parts.length === 3) {
+                  const day = parts[0].padStart(2, '0');
+                  const month = parts[1].padStart(2, '0');
+                  const year = parts[2];
+                  const isoDate = `${year}-${month}-${day}`;
+                  const availableFromDate = new Date(isoDate);
+                  if (date < availableFromDate) {
+                    ok = false; 
+                    showError(name, LANG === 'en' ? 'Earliest move-in must be on or after availability date' : 'Frühester Einzug muss am oder nach dem Verfügbarkeitsdatum liegen'); 
+                    if (!firstInvalid) firstInvalid = el; 
+                    return;
+                  }
                 }
               }
             }
