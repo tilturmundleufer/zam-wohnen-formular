@@ -1311,8 +1311,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sentOk) {
           FORM.reset();
           clearErrors();
-          // Formular ausblenden und nur Erfolgsmeldung anzeigen
-          FORM.hidden = true;
+          // Alle Formular-Inhalte außer der Erfolgsmeldung verstecken
+          const formContent = q('.form-progress, .form-grid, .form-steps-nav, .form-actions');
+          if (formContent) formContent.hidden = true;
+          // Alle direkten Kinder des Forms verstecken (außer Erfolgsmeldung)
+          Array.from(FORM.children).forEach(child => {
+            if (child.id !== 'formSuccess' && child.id !== 'formError') {
+              child.hidden = true;
+            }
+          });
           if (SUCCESS) SUCCESS.hidden = false;
           if (ERR) ERR.hidden = true;
           try { localStorage.setItem(cdKey, String(Date.now())); } catch {}
