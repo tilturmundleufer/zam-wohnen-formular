@@ -1005,6 +1005,51 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     })();
 
+    // ===== Grundriss Download Button =====
+    (function setupGrundrissDownload(){
+      const downloadBtn = q('#grundrissDownloadBtn');
+      const grundrissUrl = WRAP.dataset.grundriss;
+      
+      if (!downloadBtn) return;
+      
+      // Button verstecken wenn kein Grundriss vorhanden
+      if (!grundrissUrl || grundrissUrl.includes('{{')) {
+        downloadBtn.style.display = 'none';
+        return;
+      }
+      
+      // i18n für Button-Text
+      const buttonText = LANG === 'en' ? 'Floor Plan' : 'Grundriss';
+      const buttonLabel = LANG === 'en' ? 'Download floor plan' : 'Grundriss herunterladen';
+      
+      const span = downloadBtn.querySelector('span');
+      if (span) span.textContent = buttonText;
+      downloadBtn.setAttribute('aria-label', buttonLabel);
+      
+      // Download-Funktionalität
+      downloadBtn.addEventListener('click', () => {
+        try {
+          // Dateiname aus URL extrahieren oder generieren
+          const urlParts = grundrissUrl.split('/');
+          const filename = urlParts[urlParts.length - 1] || `grundriss_${meta.unit_id || 'wohnung'}.pdf`;
+          
+          // Download starten
+          const link = document.createElement('a');
+          link.href = grundrissUrl;
+          link.download = filename;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (err) {
+          console.warn('[ZAM] Grundriss-Download fehlgeschlagen:', err);
+          // Fallback: Link in neuem Tab öffnen
+          window.open(grundrissUrl, '_blank', 'noopener,noreferrer');
+        }
+      });
+    })();
+
     // ===== Bild aus CMS binden =====
     (async function bindUnitGallery(){
       const IMG_WRAP = q('.zam-apply__image');

@@ -33,7 +33,43 @@
   .zam-apply__subtitle { margin: 0 0 .75rem; opacity: .85; }
   .zam-apply__available { margin: 0 0 .5rem; font-weight: 600; }
   .zam-apply__image { margin: 0 0 .75rem; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid #fecaca; box-shadow: var(--shadow-1); position: relative; }
-  .zam-apply__title-box { background: #fff; border: 1px solid #fecaca; border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-1); }
+  .zam-apply__title-box { background: #fff; border: 1px solid #fecaca; border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-1); display: flex; align-items: stretch; gap: 1rem; }
+  .zam-apply__title-content { flex: 1; }
+  .zam-apply__download-btn { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 0.5rem; 
+    padding: 1rem; 
+    background: var(--brand-primary); 
+    color: white; 
+    border: none; 
+    border-radius: var(--radius); 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    min-width: 80px; 
+    font-size: 0.875rem; 
+    font-weight: 600; 
+    text-align: center; 
+  }
+  .zam-apply__download-btn:hover { 
+    background: color-mix(in srgb, var(--brand-primary) 90%, black); 
+    transform: translateY(-1px); 
+    box-shadow: var(--shadow-2); 
+  }
+  .zam-apply__download-btn:focus { 
+    outline: none; 
+    box-shadow: var(--focus-ring); 
+  }
+  .zam-apply__download-btn:active { 
+    transform: translateY(0); 
+  }
+  .zam-apply__download-btn svg { 
+    width: 24px; 
+    height: 24px; 
+    flex-shrink: 0; 
+  }
   .zam-apply__slider { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0; }
   .zam-apply__slides { display: flex; will-change: transform; transition: transform .35s ease; flex: 1; min-height: 0; }
   .zam-apply__slide { flex: 0 0 100%; width: 100%; position: relative; height: 100%; min-height: clamp(160px, 30vw, 360px); background-position: center; background-size: cover; background-repeat: no-repeat; }
@@ -211,7 +247,7 @@
   .flatpickr-day.today { border-color: color-mix(in srgb, var(--brand-accent) 45%, #c7d2fe); }
   .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--brand-accent); border-color: var(--brand-accent); color: #fff; }
   .flatpickr-day:hover { background: color-mix(in srgb, var(--brand-accent) 12%, #fff); }
-
+  
   .checks .check { display: grid; grid-template-columns: 20px 1fr; gap: .5rem; align-items: start; }
   .checks input[type="checkbox"] { margin-top: .2rem; }
   
@@ -287,6 +323,18 @@
     .field input, .field select, .field textarea { padding: .6rem .75rem; }
     .form-steps-nav .btn, .form-actions .btn { width: 100%; }
     .zam-apply__image img { height: clamp(160px, 42vw, 240px); }
+    /* Download Button auf Mobile: unter dem Titel-Content */
+    .zam-apply__title-box { flex-direction: column; align-items: stretch; }
+    .zam-apply__download-btn { 
+      flex-direction: row; 
+      justify-content: center; 
+      min-width: auto; 
+      padding: 0.75rem 1rem; 
+    }
+    .zam-apply__download-btn svg { 
+      width: 20px; 
+      height: 20px; 
+    }
     /* Alle Field-Klassen nehmen volle Breite auf Mobile */
     .field--third, .field--half, .field--two-thirds, .field--full { grid-column: 1 / -1; }
     /* Amenities: Key-Spalte einheitlich breit, Trenner ausgerichtet */
