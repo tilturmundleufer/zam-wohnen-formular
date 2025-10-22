@@ -319,14 +319,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // Viewing selects befüllen
       const daySel = q('#viewing_day');
       if (daySel) {
-        const arr = (LANG==='en') ? ['Please choose','Weekdays','Weekend'] : ['Bitte wählen','Unter der Woche','Am Wochenende'];
+        const arr = (LANG==='en') ? ['Please choose','Weekdays','Weekend','Any day'] : ['Bitte wählen','Unter der Woche','Am Wochenende','Jeden Tag'];
         const cur = daySel.value; daySel.innerHTML='';
         arr.forEach((label, idx)=>{ const o=document.createElement('option'); o.textContent=label; if(idx===0){o.value='';o.disabled=true;o.selected=true;} daySel.appendChild(o); });
         if (Array.from(daySel.options).some(o=>o.textContent===cur)) daySel.value = cur;
       }
       const timeSel = q('#viewing_time');
       if (timeSel) {
-        const arr = (LANG==='en') ? ['Please choose','Morning','Midday','Evening'] : ['Bitte wählen','Morgens','Mittags','Abends'];
+        const arr = (LANG==='en') ? ['Please choose','Morning','Midday','Evening','All day'] : ['Bitte wählen','Morgens','Mittags','Abends','Ganztags'];
         const cur = timeSel.value; timeSel.innerHTML='';
         arr.forEach((label, idx)=>{ const o=document.createElement('option'); o.textContent=label; if(idx===0){o.value='';o.disabled=true;o.selected=true;} timeSel.appendChild(o); });
         if (Array.from(timeSel.options).some(o=>o.textContent===cur)) timeSel.value = cur;
