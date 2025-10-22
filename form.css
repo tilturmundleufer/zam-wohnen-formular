@@ -42,19 +42,19 @@
     justify-content: center; 
     gap: 0.5rem; 
     padding: 1rem; 
-    background: var(--brand-accent); 
+    background: var(--brand-primary); 
     color: white; 
     border: none; 
     border-radius: var(--radius); 
     cursor: pointer; 
     transition: all 0.2s ease; 
-    min-width: 120px; 
+    min-width: 156px; 
     font-size: 0.875rem; 
     font-weight: 600; 
     text-align: center; 
   }
   .zam-apply__download-btn:hover { 
-    background: color-mix(in srgb, var(--brand-accent) 90%, black); 
+    background: color-mix(in srgb, var(--brand-primary) 90%, black); 
     transform: translateY(-1px); 
     box-shadow: var(--shadow-2); 
   }
