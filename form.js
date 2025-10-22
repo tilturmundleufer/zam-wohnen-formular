@@ -1336,6 +1336,8 @@ document.addEventListener('DOMContentLoaded', () => {
       TOGGLE.addEventListener('toggle', () => {
         if (TOGGLE.open) {
           FORM.hidden = false;
+          // Toggle-Button ausblenden, sobald Formular sichtbar ist
+          TOGGLE.style.display = 'none';
         } else {
           FORM.hidden = true;
         }
