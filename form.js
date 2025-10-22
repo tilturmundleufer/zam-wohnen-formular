@@ -1311,6 +1311,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sentOk) {
           FORM.reset();
           clearErrors();
+          // Formular ausblenden und nur Erfolgsmeldung anzeigen
+          FORM.hidden = true;
           if (SUCCESS) SUCCESS.hidden = false;
           if (ERR) ERR.hidden = true;
           try { localStorage.setItem(cdKey, String(Date.now())); } catch {}

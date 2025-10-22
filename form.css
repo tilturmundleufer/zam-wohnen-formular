@@ -276,6 +276,28 @@
   
   .form-feedback { margin-top: 12px; background: var(--success-bg); border: 1px solid var(--success-bd); color: var(--success-fg); padding: 10px; border-radius: var(--radius-sm); }
   .form-feedback--error { background: #fef2f2; border-color: #fee2e2; color: #7f1d1d; }
+  /* Erfolgsmeldung zentrieren */
+  .form-feedback#formSuccess { 
+    text-align: center; 
+    padding: 2rem; 
+    margin: 2rem auto; 
+    max-width: 400px; 
+    background: var(--success-bg); 
+    border: 1px solid var(--success-bd); 
+    color: var(--success-fg); 
+    border-radius: var(--radius); 
+    box-shadow: var(--shadow-1); 
+  }
+  .form-feedback#formSuccess h3 { 
+    margin: 0 0 0.5rem; 
+    font-size: 1.5rem; 
+    font-weight: 700; 
+  }
+  .form-feedback#formSuccess p { 
+    margin: 0; 
+    font-size: 1rem; 
+    opacity: 0.9; 
+  }
   .form-info { margin: 10px 0 12px; background: #fff7ed; border: 1px solid #ffedd5; color: #7c2d12; padding: 10px; border-radius: var(--radius-sm); }
   .group-title h3 { margin: 8px 0 4px; font-size: 1rem; line-height: 1.2; opacity: .9; }
   /* Select: individueller Chevron in Akzentfarbe */
