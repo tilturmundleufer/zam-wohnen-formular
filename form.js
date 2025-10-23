@@ -1505,21 +1505,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('[ZAM] Flat Payload:', flatPayload);
             console.log('[ZAM] Flat Payload Size:', flatBodyStr.length, 'bytes');
             
-            const res = await fetch(MAKE_WEBHOOK_URL, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: flatBodyStr,
-              mode: 'cors',
-              keepalive: true
+            // FormData für Make.com - funktioniert zuverlässiger
+            const formData = new FormData();
+            Object.entries(flatPayload).forEach(([key, value]) => {
+              formData.append(key, value == null ? '' : String(value));
             });
+            
+            console.log('[ZAM] FormData entries:');
+            for (let [key, value] of formData.entries()) {
+              console.log(`  ${key}: ${value}`);
+            }
+
+        const res = await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
+              body: formData,
+              mode: 'cors',
+          keepalive: true
+        });
             
             console.log('[ZAM] Webhook Response Status:', res.status);
             console.log('[ZAM] Webhook Response OK:', res.ok);
-            
-            if (res.ok) {
+
+        if (res.ok) {
               const responseText = await res.text();
               console.log('[ZAM] Webhook Response:', responseText);
             }
@@ -1554,9 +1561,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 )
               };
               
+              // FormData auch für Fallback
+              const fallbackFormData = new FormData();
+              Object.entries(flatPayload).forEach(([key, value]) => {
+                fallbackFormData.append(key, value == null ? '' : String(value));
+              });
+              
               await fetch(MAKE_WEBHOOK_URL, { 
                 method: 'POST', 
-                body: JSON.stringify(flatPayload), 
+                body: fallbackFormData, 
                 mode: 'no-cors', 
                 keepalive: true 
               });
