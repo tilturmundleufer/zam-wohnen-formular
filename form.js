@@ -1468,14 +1468,50 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('[ZAM] Payload JSON:', bodyStr);
         if (isWebhookConfigured) {
           try {
-            // Einfache JSON-Übertragung mit korrekten Headers
+            // Flache Struktur für Make.com - alle Felder auf oberster Ebene
+            const flatPayload = {
+              // Metadaten
+              submitted_at: payload.submitted_at,
+              lang: payload.lang,
+              language: payload.language,
+              idempotency_key: payload.idempotency_key,
+              
+              // Unit-Daten (geflacht)
+              unit_id: meta.unit_id || '',
+              unit_name: meta.name || '',
+              unit_haus: meta.haus || '',
+              unit_stockwerk: meta.stockwerk || '',
+              unit_zimmer: meta.zimmer || '',
+              unit_wohnflaeche: meta.wohnflaeche || '',
+              unit_kaltmiete: meta.kaltmiete || '',
+              unit_nebenkosten: meta.nebenkosten || '',
+              unit_warmmiete: meta.warmmiete || '',
+              unit_ausrichtung: meta.ausrichtung || '',
+              unit_status: meta.status || '',
+              unit_form_aktiv: meta.form_aktiv || '',
+              
+              // Form-Daten (geflacht)
+              ...Object.fromEntries(
+                Object.entries(payload.form).map(([k, v]) => [`form_${k}`, v])
+              ),
+              
+              // Extras (geflacht)
+              ...Object.fromEntries(
+                Object.entries(extras || {}).map(([k, v]) => [`extra_${k}`, v])
+              )
+            };
+            
+            const flatBodyStr = JSON.stringify(flatPayload);
+            console.log('[ZAM] Flat Payload:', flatPayload);
+            console.log('[ZAM] Flat Payload Size:', flatBodyStr.length, 'bytes');
+            
             const res = await fetch(MAKE_WEBHOOK_URL, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
-              body: bodyStr,
+              body: flatBodyStr,
               mode: 'cors',
               keepalive: true
             });
@@ -1491,11 +1527,36 @@ document.addEventListener('DOMContentLoaded', () => {
             sentOk = res.ok;
           } catch (err1) {
             console.error('[ZAM] Webhook Error:', err1);
-            // Fallback: JSON mit no-cors
+            // Fallback: Flache JSON mit no-cors
             try {
+              const flatPayload = {
+                submitted_at: payload.submitted_at,
+                lang: payload.lang,
+                language: payload.language,
+                idempotency_key: payload.idempotency_key,
+                unit_id: meta.unit_id || '',
+                unit_name: meta.name || '',
+                unit_haus: meta.haus || '',
+                unit_stockwerk: meta.stockwerk || '',
+                unit_zimmer: meta.zimmer || '',
+                unit_wohnflaeche: meta.wohnflaeche || '',
+                unit_kaltmiete: meta.kaltmiete || '',
+                unit_nebenkosten: meta.nebenkosten || '',
+                unit_warmmiete: meta.warmmiete || '',
+                unit_ausrichtung: meta.ausrichtung || '',
+                unit_status: meta.status || '',
+                unit_form_aktiv: meta.form_aktiv || '',
+                ...Object.fromEntries(
+                  Object.entries(payload.form).map(([k, v]) => [`form_${k}`, v])
+                ),
+                ...Object.fromEntries(
+                  Object.entries(extras || {}).map(([k, v]) => [`extra_${k}`, v])
+                )
+              };
+              
               await fetch(MAKE_WEBHOOK_URL, { 
                 method: 'POST', 
-                body: bodyStr, 
+                body: JSON.stringify(flatPayload), 
                 mode: 'no-cors', 
                 keepalive: true 
               });
