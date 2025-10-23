@@ -1455,12 +1455,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
           ...formObj,
           lang: LANG,
+          language: LANG === 'de' ? 'DE' : 'EN', // Zusätzliches Feld für Make.com
           extras,
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
         };
 
         let sentOk = false;
         const bodyStr = JSON.stringify(payload);
+        console.log('[ZAM] Webhook URL:', MAKE_WEBHOOK_URL);
+        console.log('[ZAM] Payload:', payload);
         if (isWebhookConfigured) {
           try {
             // Variante 1: multipart/form-data mit flachen Keys → Make.com erkennt Felder zuverlässig
@@ -1487,6 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
               Object.entries(extras).forEach(([k, v]) => add(`extra_${k}`, v));
             }
             add('lang', payload.lang);
+            add('language', payload.language);
             add('idempotency_key', payload.idempotency_key);
             // Zusätzlich Roh-JSON als Debug-Feld
             add('raw_json', bodyStr);
