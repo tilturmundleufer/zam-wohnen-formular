@@ -932,6 +932,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'Buche': 'Beech',
         'Kiefer': 'Pine',
         'naturgeölt': 'natural oiled',
+        
+        // Ausstattungsbegriffe (Labels)
+        'Ausstattung': 'Equipment',
+        'Sonnenschutz': 'Sun protection',
+        'Boden': 'Flooring',
+        'Weitere Ausstattung': 'Additional equipment',
+        'Außenbereich': 'Outdoor area',
+        'Heizung': 'Heating',
+        'Ventilation': 'Ventilation',
+        'Sanitary': 'Sanitary',
+        'Bathroom/WC': 'Bathroom/WC',
+        'Shower Cabin': 'Shower Cabin',
         'lackiert': 'varnished',
         'Mechanische': 'Mechanical',
         'dezentrale': 'decentralized',
@@ -1008,7 +1020,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verfügbar ab Datum formatieren (DD.MM.JJJJ -> DD.MM.JJJJ)
     const availableFromRaw = WRAP?.dataset.verfuegbarAb || '';
     const availableFromFormatted = availableFromRaw || '—';
-    setText('#availableFrom', LANG === 'en' ? 'Available from: ' + availableFromFormatted : 'Verfügbar ab: ' + availableFromFormatted);
+    setText('#availableFromLabel', LANG === 'en' ? 'Available from:' : 'Verfügbar ab:');
+    setText('#availableFrom', availableFromFormatted);
     setText('#fact-stock', translateCMSContent(meta.stockwerk));
     setText('#fact-rooms', meta.zimmer);
     setText('#fact-size',  meta.wohnflaeche ? (meta.wohnflaeche + ' m²') : '');
