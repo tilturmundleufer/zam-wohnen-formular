@@ -1464,58 +1464,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const bodyStr = JSON.stringify(payload);
         console.log('[ZAM] Webhook URL:', MAKE_WEBHOOK_URL);
         console.log('[ZAM] Payload:', payload);
+        console.log('[ZAM] Payload Size:', bodyStr.length, 'bytes');
+        console.log('[ZAM] Payload JSON:', bodyStr);
         if (isWebhookConfigured) {
           try {
-            // Variante 1: multipart/form-data mit flachen Keys → Make.com erkennt Felder zuverlässig
-            const fd = new FormData();
-            const add = (k, v) => fd.append(k, v == null ? '' : String(v));
-            add('submitted_at', payload.submitted_at);
-            // Unit (geflacht)
-            add('unit_unit_id', meta.unit_id || '');
-            add('unit_name', meta.name || '');
-            add('unit_haus', meta.haus || '');
-            add('unit_stockwerk', meta.stockwerk || '');
-            add('unit_zimmer', meta.zimmer || '');
-            add('unit_wohnflaeche', meta.wohnflaeche || '');
-            add('unit_kaltmiete', meta.kaltmiete || '');
-            add('unit_nebenkosten', meta.nebenkosten || '');
-            add('unit_warmmiete', meta.warmmiete || '');
-            add('unit_ausrichtung', meta.ausrichtung || '');
-            add('unit_status', meta.status || '');
-            add('unit_form_aktiv', meta.form_aktiv || '');
-            // Form (geflacht)
-            Object.entries(payload.form).forEach(([k, v]) => add(`form_${k}`, v));
-            // Extras (geflacht)
-            if (extras && typeof extras === 'object') {
-              Object.entries(extras).forEach(([k, v]) => add(`extra_${k}`, v));
-            }
-            add('lang', payload.lang);
-            add('language', payload.language);
-            add('idempotency_key', payload.idempotency_key);
-            // Zusätzlich Roh-JSON als Debug-Feld
-            add('raw_json', bodyStr);
-
-        const res = await fetch(MAKE_WEBHOOK_URL, {
-          method: 'POST',
-              body: fd,
+            // Einfache JSON-Übertragung mit korrekten Headers
+            const res = await fetch(MAKE_WEBHOOK_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: bodyStr,
               mode: 'cors',
-          keepalive: true
-        });
+              keepalive: true
+            });
+            
+            console.log('[ZAM] Webhook Response Status:', res.status);
+            console.log('[ZAM] Webhook Response OK:', res.ok);
+            
+            if (res.ok) {
+              const responseText = await res.text();
+              console.log('[ZAM] Webhook Response:', responseText);
+            }
+            
             sentOk = res.ok;
           } catch (err1) {
-            // Fallback: text/plain + sendBeacon/no-cors
+            console.error('[ZAM] Webhook Error:', err1);
+            // Fallback: JSON mit no-cors
             try {
-              const ok = navigator.sendBeacon && navigator.sendBeacon(MAKE_WEBHOOK_URL, new Blob([bodyStr], { type: 'text/plain;charset=UTF-8' }));
-              if (ok) { sentOk = true; }
-            } catch {}
-            if (!sentOk) {
-              try {
-                await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: bodyStr, mode: 'no-cors', keepalive: true });
-                sentOk = true;
-              } catch (err2) {
-                sentOk = false;
-                throw err2;
-              }
+              await fetch(MAKE_WEBHOOK_URL, { 
+                method: 'POST', 
+                body: bodyStr, 
+                mode: 'no-cors', 
+                keepalive: true 
+              });
+              sentOk = true;
+              console.log('[ZAM] Webhook sent via no-cors fallback');
+            } catch (err2) {
+              console.error('[ZAM] Webhook Fallback Error:', err2);
+              sentOk = false;
+              throw err2;
             }
           }
         } else {
