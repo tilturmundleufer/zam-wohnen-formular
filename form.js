@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sprache aus data-lang, URL (?lang=de/en) oder Browser ableiten
     const urlLang = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
     let LANG = (WRAP.dataset.lang || urlLang || (navigator.language || 'de')).slice(0,2).toLowerCase();
-    LANG = (LANG === 'en') ? 'en' : 'de';
+    // Nur Deutsch als Deutsch anzeigen, alle anderen Sprachen als Englisch
+    LANG = (LANG === 'de') ? 'de' : 'en';
 
     // i18n Wörterbuch
     const I18N = {
