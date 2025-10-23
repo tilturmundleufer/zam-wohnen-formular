@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Priorität: data-lang > URL-Parameter > Browser-Sprache
     let LANG;
-    if (WRAP.dataset.lang) {
+    if (WRAP.dataset.lang && WRAP.dataset.lang !== 'auto') {
       LANG = WRAP.dataset.lang.slice(0,2).toLowerCase();
     } else if (urlLang) {
       LANG = urlLang.slice(0,2).toLowerCase();
@@ -729,6 +729,21 @@ document.addEventListener('DOMContentLoaded', () => {
       status:      WRAP?.dataset.status || '',
       form_aktiv:  WRAP?.dataset.formAktiv || ''
     };
+
+    // Verfügbar-ab Datum global verfügbar machen
+    const availableFrom = WRAP.dataset.verfuegbarAb || '';
+    let availableFromDate = null;
+    if (availableFrom) {
+      // Konvertiere DD.MM.JJJJ zu YYYY-MM-DD für Date-Objekt
+      const parts = availableFrom.split('.');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        const year = parts[2];
+        const isoDate = `${year}-${month}-${day}`;
+        availableFromDate = new Date(isoDate);
+      }
+    }
 
     // ===== Dynamische Felder / Pflichtfelder (pro Unit) =====
     const extraFieldsRaw = WRAP.dataset.extraFields || '';
@@ -1459,20 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadJS('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js');
       } catch {}
 
-      // Verfügbar-ab Datum aus data-* Attribut (Format: DD.MM.JJJJ)
-      const availableFrom = WRAP.dataset.verfuegbarAb || '';
-      let availableFromDate = null;
-      if (availableFrom) {
-        // Konvertiere DD.MM.JJJJ zu YYYY-MM-DD für Date-Objekt
-        const parts = availableFrom.split('.');
-        if (parts.length === 3) {
-          const day = parts[0].padStart(2, '0');
-          const month = parts[1].padStart(2, '0');
-          const year = parts[2];
-          const isoDate = `${year}-${month}-${day}`;
-          availableFromDate = new Date(isoDate);
-        }
-      }
+      // availableFromDate ist bereits global definiert
 
       dates.forEach((input) => {
         if (!input || input.dataset.enhanced === '1') return;
