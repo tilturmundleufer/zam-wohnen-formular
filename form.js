@@ -101,9 +101,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sprache aus data-lang, URL (?lang=de/en) oder Browser ableiten
     const urlLang = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
-    let LANG = (WRAP.dataset.lang || urlLang || (navigator.language || 'de')).slice(0,2).toLowerCase();
+    
+    // Browser-Sprache ermitteln (robuster)
+    const browserLang = (navigator.language || navigator.userLanguage || 'en').slice(0,2).toLowerCase();
+    
+    // Priorität: data-lang > URL-Parameter > Browser-Sprache
+    let LANG;
+    if (WRAP.dataset.lang) {
+      LANG = WRAP.dataset.lang.slice(0,2).toLowerCase();
+    } else if (urlLang) {
+      LANG = urlLang.slice(0,2).toLowerCase();
+    } else {
+      LANG = browserLang;
+    }
+    
     // Nur Deutsch als Deutsch anzeigen, alle anderen Sprachen als Englisch
     LANG = (LANG === 'de') ? 'de' : 'en';
+    
+    // Debug: Browser-Sprache in Konsole ausgeben
+    console.log('[ZAM] Browser-Sprache:', navigator.language, '→ Erkannt:', browserLang, '→ Final:', LANG);
 
     // i18n Wörterbuch
     const I18N = {
