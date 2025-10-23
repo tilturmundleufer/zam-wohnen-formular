@@ -273,6 +273,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       };
       translateCMSHeaders();
+      
+      // Listen-Labels übersetzen
+      const translateListLabels = () => {
+        const labelTranslations = {
+          'Zimmer': 'Rooms',
+          'Stockwerk': 'Floor',
+          'Fläche': 'Area',
+          'Ausrichtung': 'Orientation',
+          'Haus': 'House',
+          'Kaltmiete': 'Cold rent',
+          'Nebenkosten': 'Additional costs',
+          'Warmmiete': 'Warm rent'
+        };
+        
+        if (LANG === 'en') {
+          qa('.zam-apply__facts-list span, .zam-apply__rent-list span').forEach(span => {
+            const text = span.textContent.trim();
+            if (labelTranslations[text]) {
+              span.textContent = labelTranslations[text];
+            }
+          });
+        }
+      };
+      translateListLabels();
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
       setLabel('full_name', t.labels.full_name);
@@ -927,7 +951,48 @@ document.addEventListener('DOMContentLoaded', () => {
         'Kabine': 'Cabin',
         'cm': 'cm',
         'm²': 'm²',
-        'Polyacryl': 'Polyacrylic'
+        'Polyacryl': 'Polyacrylic',
+        // Zusätzliche Übersetzungen für gemischte Texte
+        'aus': 'made of',
+        'Polyacrylic': 'Polyacrylic',
+        'im': 'in the',
+        'jedem': 'every',
+        'Raum': 'room',
+        '&': '&',
+        'Bathroom': 'Bathroom',
+        'Shower': 'Shower',
+        'Tub': 'Tub',
+        'Cabin': 'Cabin',
+        'Corner': 'Corner',
+        'and': 'and',
+        'front': 'front',
+        'entry': 'entry',
+        'Towel': 'Towel',
+        'radiator': 'radiator',
+        'Electric': 'Electric',
+        'Vertical': 'Vertical',
+        'blinds': 'blinds',
+        'Real': 'Real',
+        'wood': 'wood',
+        'parquet': 'parquet',
+        'Oak': 'Oak',
+        'natural': 'natural',
+        'oiled': 'oiled',
+        'Mechanical': 'Mechanical',
+        'decentralized': 'decentralized',
+        'Ventilation': 'Ventilation',
+        'in': 'in',
+        'every': 'every',
+        'room': 'room',
+        'Sanitary': 'Sanitary',
+        'Bathrooms': 'Bathrooms',
+        'Storage': 'Storage',
+        'room': 'room',
+        'Fitted': 'Fitted',
+        'kitchen': 'kitchen',
+        'Underfloor': 'Underfloor',
+        'heating': 'heating',
+        'Loggia': 'Loggia'
       };
       
       let translated = content;
