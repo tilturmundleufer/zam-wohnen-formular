@@ -261,6 +261,18 @@ document.addEventListener('DOMContentLoaded', () => {
       setH('grp-address', 'Adresse', 'Address');
       setH('grp-prefs', 'Präferenzen', 'Preferences');
       setH('grp-notes', 'Zusatzinformationen', 'Additional information');
+      
+      // CMS-Überschriften übersetzen
+      const translateCMSHeaders = () => {
+        // Alle h3-Elemente finden und übersetzen
+        qa('h3').forEach(h3 => {
+          const text = h3.textContent.trim();
+          if (text === 'Wohnungsdetails') h3.textContent = LANG === 'en' ? 'Apartment Details' : text;
+          else if (text === 'Mietpreise') h3.textContent = LANG === 'en' ? 'Rental Prices' : text;
+          else if (text === 'Ausstattung') h3.textContent = LANG === 'en' ? 'Features' : text;
+        });
+      };
+      translateCMSHeaders();
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
       setLabel('full_name', t.labels.full_name);
@@ -286,6 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
       setLabel('viewing_times', t.labels.viewing_times);
       setLabel('co_applicant_names', t.labels.co_applicant_names);
       const privacySpan = q('.checks .check span'); if (privacySpan) privacySpan.innerHTML = t.labels.privacy;
+      
+      // Info-Box übersetzen
+      const infoBox = q('#eligibilityInfo');
+      if (infoBox) {
+        infoBox.innerHTML = LANG === 'en' 
+          ? 'Note: These apartments are privately financed. A housing eligibility certificate (WBS) or the Munich Model will not be accepted.'
+          : 'Hinweis: Diese Wohnungen sind freifinanziert vermietet. Ein Wohnberechtigungsschein (WBS) oder das München&nbsp;Modell werden nicht akzeptiert.';
+      }
       // Placeholders
       const setPH = (name, ph) => { const el = q(`#${name}`); if (el && 'placeholder' in el) el.placeholder = ph; };
       setPH('full_name', t.placeholders.full_name);
@@ -838,15 +858,96 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // ===== CMS-Übersetzungen =====
+    const translateCMSContent = (content) => {
+      if (!content || LANG === 'de') return content;
+      
+      const translations = {
+        // Stockwerk
+        'Obergeschoss': 'Upper floor',
+        'Erdgeschoss': 'Ground floor',
+        'Untergeschoss': 'Basement',
+        'Dachgeschoss': 'Attic floor',
+        
+        // Ausrichtung
+        'Nord': 'North',
+        'Süd': 'South',
+        'Ost': 'East',
+        'West': 'West',
+        'beidseitig': 'on both sides',
+        'einseitig': 'on one side',
+        
+        // Ausstattung
+        'Einbauküche': 'Fitted kitchen',
+        'Abstellraum': 'Storage room',
+        'Keller': 'Basement',
+        'Dachboden': 'Attic',
+        'Balkon': 'Balcony',
+        'Loggia': 'Loggia',
+        'Terrasse': 'Terrace',
+        'Fußbodenheizung': 'Underfloor heating',
+        'Zentralheizung': 'Central heating',
+        'Gasheizung': 'Gas heating',
+        'Elektroheizung': 'Electric heating',
+        'Parkett': 'Parquet',
+        'Laminat': 'Laminate',
+        'Fliesen': 'Tiles',
+        'Teppich': 'Carpet',
+        'Duschkabine': 'Shower cabin',
+        'Badewanne': 'Bathtub',
+        'Handtuchheizkörper': 'Towel radiator',
+        'Waschbecken': 'Washbasin',
+        'Toilette': 'Toilet',
+        'WC': 'WC',
+        'Elektrische': 'Electric',
+        'Senkrechtmarkisen': 'Vertical blinds',
+        'Rollläden': 'Roller shutters',
+        'Jalousien': 'Venetian blinds',
+        'Echtholzparkett': 'Real wood parquet',
+        'Eiche': 'Oak',
+        'Buche': 'Beech',
+        'Kiefer': 'Pine',
+        'naturgeölt': 'natural oiled',
+        'lackiert': 'varnished',
+        'Mechanische': 'Mechanical',
+        'dezentrale': 'decentralized',
+        'Lüftung': 'Ventilation',
+        'Belüftung': 'Ventilation',
+        'Sanitär': 'Sanitary',
+        'Villeroy & Boch': 'Villeroy & Boch',
+        'Grohe': 'Grohe',
+        'Hansgrohe': 'Hansgrohe',
+        'Dusche': 'Shower',
+        'Wanne': 'Tub',
+        'Bäder': 'Bathrooms',
+        'Bad': 'Bathroom',
+        'Eck- und Fronteinstieg': 'Corner and front entry',
+        'Fronteinstieg': 'Front entry',
+        'Eckeinstieg': 'Corner entry',
+        'Kabine': 'Cabin',
+        'cm': 'cm',
+        'm²': 'm²',
+        'Polyacryl': 'Polyacrylic'
+      };
+      
+      let translated = content;
+      Object.entries(translations).forEach(([de, en]) => {
+        const regex = new RegExp(`\\b${de}\\b`, 'gi');
+        translated = translated.replace(regex, en);
+      });
+      
+      return translated;
+    };
+
     // ===== Facts füllen (lokal) =====
     // Verfügbar ab Datum formatieren (DD.MM.JJJJ -> DD.MM.JJJJ)
     const availableFromRaw = WRAP?.dataset.verfuegbarAb || '';
     const availableFromFormatted = availableFromRaw || '—';
-    setText('#availableFrom', availableFromFormatted);
-    setText('#fact-stock', meta.stockwerk);
+    setText('#availableFrom', LANG === 'en' ? 'Available from: ' + availableFromFormatted : 'Verfügbar ab: ' + availableFromFormatted);
+    setText('#fact-stock', translateCMSContent(meta.stockwerk));
     setText('#fact-rooms', meta.zimmer);
     setText('#fact-size',  meta.wohnflaeche ? (meta.wohnflaeche + ' m²') : '');
-    setText('#fact-orient',meta.ausrichtung);
+    setText('#fact-orient', translateCMSContent(meta.ausrichtung));
     setText('#fact-haus',  meta.haus);
     setText('#fact-warm',  currency(meta.warmmiete));
     setText('#fact-cold',  currency(meta.kaltmiete));
@@ -955,9 +1056,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function addAmenityKV(key, value){
       if (!amenitiesList) return;
       const li = document.createElement('li');
-      const k = document.createElement('span'); k.className = 'amenity-key'; k.textContent = key;
+      const k = document.createElement('span'); k.className = 'amenity-key'; k.textContent = translateCMSContent(key);
       const sep = document.createElement('span'); sep.className = 'amenity-sep'; sep.textContent = ' – ';
-      const v = document.createElement('span'); v.className = 'amenity-value'; v.textContent = value;
+      const v = document.createElement('span'); v.className = 'amenity-value'; v.textContent = translateCMSContent(value);
       li.appendChild(k); li.appendChild(sep); li.appendChild(v);
       amenitiesList.appendChild(li);
     }
