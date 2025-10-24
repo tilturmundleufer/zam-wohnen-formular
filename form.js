@@ -270,9 +270,26 @@ document.addEventListener('DOMContentLoaded', () => {
           if (text === 'Wohnungsdetails') h3.textContent = LANG === 'en' ? 'Apartment Details' : text;
           else if (text === 'Mietpreise') h3.textContent = LANG === 'en' ? 'Rental Prices' : text;
           else if (text === 'Ausstattung') h3.textContent = LANG === 'en' ? 'Features' : text;
+          else if (text === 'Präferenzen') h3.textContent = LANG === 'en' ? 'Preferences' : text;
+          else if (text === 'Zusatzinformationen') h3.textContent = LANG === 'en' ? 'Additional Information' : text;
         });
       };
       translateCMSHeaders();
+      
+      // Select-Optionen übersetzen
+      const translateSelectOptions = () => {
+        // Parking-Optionen
+        const parkingSelect = document.getElementById('parking');
+        if (parkingSelect) {
+          Array.from(parkingSelect.options).forEach(option => {
+            if (option.value === '') return; // Skip placeholder
+            const text = option.textContent.trim();
+            if (text === 'Kein Bedarf') option.textContent = LANG === 'en' ? 'No need' : text;
+            else if (text === 'Tiefgarage') option.textContent = LANG === 'en' ? 'Underground parking' : text;
+          });
+        }
+      };
+      translateSelectOptions();
       
       // Listen-Labels übersetzen
       const translateListLabels = () => {
@@ -944,6 +961,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'Sanitary': 'Sanitary',
         'Bathroom/WC': 'Bathroom/WC',
         'Shower Cabin': 'Shower Cabin',
+        
+        // Formular-Überschriften
+        'Präferenzen': 'Preferences',
+        'Zusatzinformationen': 'Additional Information',
         'lackiert': 'varnished',
         'Mechanische': 'Mechanical',
         'dezentrale': 'decentralized',
