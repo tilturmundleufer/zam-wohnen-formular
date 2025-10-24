@@ -955,6 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Sonnenschutz': 'Sun protection',
         'Boden': 'Flooring',
         'Weitere Ausstattung': 'Additional equipment',
+        'Weitere Equipment': 'Additional Equipment',
         'Außenbereich': 'Outdoor area',
         'Heizung': 'Heating',
         'Ventilation': 'Ventilation',
