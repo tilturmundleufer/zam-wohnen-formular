@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
           else if (text === 'Ausstattung') h3.textContent = LANG === 'en' ? 'Features' : text;
           else if (text === 'Präferenzen') h3.textContent = LANG === 'en' ? 'Preferences' : text;
           else if (text === 'Zusatzinformationen') h3.textContent = LANG === 'en' ? 'Additional Information' : text;
+          else if (text === 'Weitere Ausstattung') h3.textContent = LANG === 'en' ? 'Additional Equipment' : text;
         });
       };
       translateCMSHeaders();
@@ -958,6 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Weitere Equipment': 'Additional Equipment',
         'Außenbereich': 'Outdoor area',
         'Heizung': 'Heating',
+        'heating': 'Heating',
         'Ventilation': 'Ventilation',
         'Sanitary': 'Sanitary',
         'Bathroom/WC': 'Bathroom/WC',
@@ -966,6 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Formular-Überschriften
         'Präferenzen': 'Preferences',
         'Zusatzinformationen': 'Additional Information',
+        'Weitere Ausstattung': 'Additional Equipment',
         'lackiert': 'varnished',
         'Mechanische': 'Mechanical',
         'dezentrale': 'decentralized',

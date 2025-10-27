@@ -88,8 +88,10 @@
   .zam-apply__slider-section { flex: 3; min-width: 0; display: flex; flex-direction: column; }
   .zam-apply__facts-section { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .75rem; }
   
-  /* Kräftige Brand-Accent Box für Wohnungsdetails */
-  .zam-apply__property-facts { 
+  /* Details-Elemente für mobile Dropdowns */
+  .zam-apply__property-facts,
+  .zam-apply__rent-facts,
+  .zam-apply__info {
     background: #fef0ed; 
     border: 1px solid #fecaca; 
     border-radius: var(--radius); 
@@ -97,7 +99,29 @@
     box-shadow: var(--shadow-1); 
     flex: 1;
   }
-  .zam-apply__property-facts h3 { 
+  
+  /* Desktop: Details-Elemente als normale Boxen anzeigen */
+  .zam-apply__property-facts summary,
+  .zam-apply__rent-facts summary,
+  .zam-apply__info summary {
+    list-style: none;
+    cursor: default;
+  }
+  
+  .zam-apply__property-facts summary::-webkit-details-marker,
+  .zam-apply__rent-facts summary::-webkit-details-marker,
+  .zam-apply__info summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .zam-apply__property-facts summary::before,
+  .zam-apply__rent-facts summary::before,
+  .zam-apply__info summary::before {
+    display: none;
+  }
+  .zam-apply__property-facts h3,
+  .zam-apply__rent-facts h3,
+  .zam-apply__info h3 { 
     margin: 0 0 .75rem; 
     font-size: 1rem; 
     font-weight: 700; 
@@ -345,6 +369,33 @@
     .field input, .field select, .field textarea { padding: .6rem .75rem; }
     .form-steps-nav .btn, .form-actions .btn { width: 100%; }
     .zam-apply__image img { height: clamp(160px, 42vw, 240px); }
+    
+    /* Mobile: Details-Elemente als Dropdowns */
+    .zam-apply__property-facts summary,
+    .zam-apply__rent-facts summary,
+    .zam-apply__info summary {
+      cursor: pointer;
+      position: relative;
+      padding-right: 2rem;
+    }
+    
+    .zam-apply__property-facts summary::after,
+    .zam-apply__rent-facts summary::after,
+    .zam-apply__info summary::after {
+      content: '▼';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease;
+    }
+    
+    .zam-apply__property-facts[open] summary::after,
+    .zam-apply__rent-facts[open] summary::after,
+    .zam-apply__info[open] summary::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    
     /* Download Button auf Mobile: unter dem Titel-Content */
     .zam-apply__title-box { flex-direction: column; align-items: stretch; }
     .zam-apply__download-btn { 

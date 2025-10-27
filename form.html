@@ -52,8 +52,8 @@
       </div>
       
       <div class="zam-apply__facts-section">
-        <div class="zam-apply__property-facts">
-          <h3>Wohnungsdetails</h3>
+        <details class="zam-apply__property-facts">
+          <summary><h3>Wohnungsdetails</h3></summary>
           <ul class="zam-apply__facts-list" aria-label="Wohnungsdetails">
             <li><span>Zimmer</span><strong id="fact-rooms">—</strong></li>
             <li><span>Stockwerk</span><strong id="fact-stock">—</strong></li>
@@ -61,22 +61,23 @@
             <li><span>Ausrichtung</span><strong id="fact-orient">—</strong></li>
             <li><span>Haus</span><strong id="fact-haus">—</strong></li>
           </ul>
-        </div>
+        </details>
         
-        <div class="zam-apply__rent-facts">
-          <h3>Mietpreise</h3>
+        <details class="zam-apply__rent-facts">
+          <summary><h3>Mietpreise</h3></summary>
           <ul class="zam-apply__rent-list" aria-label="Mietpreise">
             <li><span>Warmmiete</span><strong id="fact-warm">—</strong></li>
             <li><span>Kaltmiete</span><strong id="fact-cold">—</strong></li>
             <li><span>Nebenkosten</span><strong id="fact-nk">—</strong></li>
           </ul>
-        </div>
+        </details>
       </div>
     </div>
     
-    <div class="zam-apply__info">
+    <details class="zam-apply__info">
+      <summary><h3>Weitere Ausstattung</h3></summary>
       <ul class="amenities-list" id="amenitiesList" aria-label="Ausstattung"></ul>
-    </div>
+    </details>
   </header>
 
   <div class="form-info" id="eligibilityInfo" role="note">
