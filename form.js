@@ -307,8 +307,16 @@ document.addEventListener('DOMContentLoaded', () => {
               if (window.innerWidth > 680) {
                 details.open = true;
                 details.querySelector('summary').style.pointerEvents = 'none';
+                details.querySelector('summary').style.cursor = 'default';
               } else {
+                // Mobile: Nur das erste Dropdown (property-facts) ist geöffnet
+                if (details.classList.contains('zam-apply__property-facts')) {
+                  details.open = true;
+                } else {
+                  details.open = false;
+                }
                 details.querySelector('summary').style.pointerEvents = 'auto';
+                details.querySelector('summary').style.cursor = 'pointer';
               }
             };
             
@@ -1509,8 +1517,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const payload = {
           ...formObj,
-          lang: LANG,
-          language: LANG === 'de' ? 'DE' : 'EN', // Zusätzliches Feld für Make.com
+          lang: 'de', // Immer Deutsch für Webhook
+          language: 'DE', // Immer DE für Webhook
           extras,
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
         };

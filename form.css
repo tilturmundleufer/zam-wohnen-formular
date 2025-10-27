@@ -377,9 +377,10 @@
     .zam-apply__property-facts summary,
     .zam-apply__rent-facts summary,
     .zam-apply__info summary {
-      cursor: pointer;
+      cursor: pointer !important;
       position: relative;
       padding-right: 2rem;
+      pointer-events: auto !important;
     }
     
     .zam-apply__property-facts summary::after,
