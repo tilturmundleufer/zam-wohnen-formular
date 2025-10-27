@@ -1517,8 +1517,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const payload = {
           ...formObj,
-          lang: 'de', // Immer Deutsch für Webhook
-          language: 'DE', // Immer DE für Webhook
+          lang: LANG, // Tatsächliche Sprache (de/en)
+          language: LANG === 'de' ? 'DE' : 'EN', // Tatsächliche Sprache (DE/EN)
           extras,
           idempotency_key: btoa((meta.unit_id || '') + '|' + ((FORM.email?.value) || '') + '|' + (new Date().toISOString().slice(0,10)))
         };
