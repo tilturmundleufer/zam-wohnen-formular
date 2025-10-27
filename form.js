@@ -305,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Auf Desktop/Tablet (über 680px) immer geöffnet
             const openOnDesktop = () => {
               if (window.innerWidth > 680) {
+                // Desktop: Alle Details-Elemente geöffnet und nicht klickbar
                 details.open = true;
                 details.querySelector('summary').style.pointerEvents = 'none';
                 details.querySelector('summary').style.cursor = 'default';
