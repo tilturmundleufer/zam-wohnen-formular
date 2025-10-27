@@ -1471,6 +1471,51 @@ document.addEventListener('DOMContentLoaded', () => {
           else extras[name] = (el.value || '').toString();
         });
 
+        // Dropdown-Werte für Webhook immer auf Deutsch übersetzen
+        const translateDropdownValue = (value, fieldName) => {
+          if (!value) return value;
+          
+          const translations = {
+            // Pets
+            'No': 'Nein',
+            'Yes': 'Ja',
+            
+            // Parking
+            'No need': 'Kein Bedarf',
+            'Underground parking': 'Tiefgarage',
+            
+            // Employment
+            'Employed (permanent)': 'Angestellt (unbefristet)',
+            'Employed (temporary)': 'Angestellt (befristet)',
+            'Self-employed': 'Selbstständig',
+            'Student': 'Student',
+            'Pensioner': 'Rentner',
+            'Unemployed': 'Arbeitslos',
+            'Other': 'Sonstiges',
+            
+            // How did you hear
+            'Website': 'Website',
+            'Immobilienscout24': 'Immobilienscout24',
+            'Immowelt': 'Immowelt',
+            'Recommendation': 'Empfehlung',
+            'Social media': 'Social Media',
+            'Other': 'Sonstiges',
+            
+            // Viewing day
+            'Weekdays': 'Wochentage',
+            'Weekends': 'Wochenenden',
+            'Any day': 'Jeden Tag',
+            
+            // Viewing time
+            'Morning': 'Vormittag',
+            'Afternoon': 'Nachmittag',
+            'Evening': 'Abend',
+            'All day': 'Ganztags'
+          };
+          
+          return translations[value] || value;
+        };
+
         // Grundformular aufbauen
         const formObj = {
           submitted_at: new Date().toISOString(),
@@ -1482,19 +1527,19 @@ document.addEventListener('DOMContentLoaded', () => {
             move_in:    FORM.move_in?.value || '',
             occupants:  FORM.occupants?.value || '',
             income:     FORM.income?.value || '',
-            employment: FORM.employment?.value || '',
+            employment: translateDropdownValue(FORM.employment?.value, 'employment'),
             street:     (FORM.street?.value || '').trim(),
             postal_code: (FORM.postal_code?.value || '').trim(),
             city:       (FORM.city?.value || '').trim(),
             country:    (FORM.country?.value || '').trim(),
             earliest_move_in: FORM.earliest_move_in?.value || '',
             latest_move_in:   '',
-            pets:       FORM.pets?.value || '',
+            pets:       translateDropdownValue(FORM.pets?.value, 'pets'),
             smoker:     FORM.smoker?.value || '',
-            parking:    FORM.parking?.value || '',
-            how_did_you_hear: FORM.how_did_you_hear?.value || '',
-            viewing_day: FORM.viewing_day?.value || '',
-            viewing_time: FORM.viewing_time?.value || '',
+            parking:    translateDropdownValue(FORM.parking?.value, 'parking'),
+            how_did_you_hear: translateDropdownValue(FORM.how_did_you_hear?.value, 'how_did_you_hear'),
+            viewing_day: translateDropdownValue(FORM.viewing_day?.value, 'viewing_day'),
+            viewing_time: translateDropdownValue(FORM.viewing_time?.value, 'viewing_time'),
             privacy:    !!FORM.privacy?.checked,
             page_url:   hf('page_url')?.value || '',
             utm_source: hf('utm_source')?.value || '',
