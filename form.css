@@ -100,12 +100,13 @@
     flex: 1;
   }
   
-  /* Desktop: Details-Elemente als normale Boxen anzeigen */
+  /* Desktop & Tablet: Details-Elemente als normale Boxen anzeigen */
   .zam-apply__property-facts summary,
   .zam-apply__rent-facts summary,
   .zam-apply__info summary {
     list-style: none;
     cursor: default;
+    pointer-events: none; /* Verhindert Klicks */
   }
   
   .zam-apply__property-facts summary::-webkit-details-marker,
@@ -119,6 +120,8 @@
   .zam-apply__info summary::before {
     display: none;
   }
+  
+  /* Details-Elemente auf Desktop/Tablet immer geöffnet - wird per JS gesetzt */
   .zam-apply__property-facts h3,
   .zam-apply__rent-facts h3,
   .zam-apply__info h3 { 

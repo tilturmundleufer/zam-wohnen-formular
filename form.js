@@ -292,6 +292,36 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       translateSelectOptions();
       
+      // Details-Elemente auf Desktop/Tablet automatisch öffnen
+      const setupDetailsElements = () => {
+        const detailsElements = [
+          document.querySelector('.zam-apply__property-facts'),
+          document.querySelector('.zam-apply__rent-facts'),
+          document.querySelector('.zam-apply__info')
+        ];
+        
+        detailsElements.forEach(details => {
+          if (details) {
+            // Auf Desktop/Tablet (über 680px) immer geöffnet
+            const openOnDesktop = () => {
+              if (window.innerWidth > 680) {
+                details.open = true;
+                details.querySelector('summary').style.pointerEvents = 'none';
+              } else {
+                details.querySelector('summary').style.pointerEvents = 'auto';
+              }
+            };
+            
+            // Initial setzen
+            openOnDesktop();
+            
+            // Bei Resize neu setzen
+            window.addEventListener('resize', openOnDesktop);
+          }
+        });
+      };
+      setupDetailsElements();
+      
       // Listen-Labels übersetzen
       const translateListLabels = () => {
         const labelTranslations = {
