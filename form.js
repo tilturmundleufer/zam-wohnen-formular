@@ -856,7 +856,8 @@ document.addEventListener('DOMContentLoaded', () => {
       warmmiete:   WRAP?.dataset.warmmiete || '',
       ausrichtung: WRAP?.dataset.ausrichtung || '',
       status:      WRAP?.dataset.status || '',
-      form_aktiv:  WRAP?.dataset.formAktiv || ''
+      form_aktiv:  WRAP?.dataset.formAktiv || '',
+      slug:        WRAP?.dataset.slug || ''
     };
 
     // Verfügbar-ab Datum global verfügbar machen
@@ -1626,6 +1627,7 @@ document.addEventListener('DOMContentLoaded', () => {
               unit_ausrichtung: meta.ausrichtung || '',
               unit_status: meta.status || '',
               unit_form_aktiv: meta.form_aktiv || '',
+              unit_slug: meta.slug || '',
               
               // Form-Daten (geflacht)
               ...Object.fromEntries(
@@ -1690,6 +1692,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 unit_ausrichtung: meta.ausrichtung || '',
                 unit_status: meta.status || '',
                 unit_form_aktiv: meta.form_aktiv || '',
+                unit_slug: meta.slug || '',
                 ...Object.fromEntries(
                   Object.entries(payload.form).map(([k, v]) => [`form_${k}`, v])
                 ),
