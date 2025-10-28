@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
     const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL);
-    const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
+    const DEFAULT_REQUIRED = ['first_name', 'last_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
     // Sprache aus data-lang, URL (?lang=de/en), Webflow-Locale im Pfad (/en), <html lang>, oder Browser ableiten
@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         title: `Jetzt bewerben – ${WRAP?.dataset.name || ''}`.trim(),
         subtitle: 'Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.',
         labels: {
-          full_name: 'Vollständiger Name *',
+          first_name: 'Vorname *',
+          last_name: 'Nachname *',
           email: 'E-Mail *',
           phone: 'Telefon (mobil) *',
           move_in: 'Gewünschter Einzug *',
@@ -199,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
         title: `Apply now – ${WRAP?.dataset.name || ''}`.trim(),
         subtitle: 'Quick, non-binding inquiry. We will get back to you shortly.',
         labels: {
-          full_name: 'Full name *',
+          first_name: 'First name *',
+          last_name: 'Last name *',
           email: 'Email *',
           phone: 'Phone (mobile) *',
           move_in: 'Desired move-in *',
@@ -384,7 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
       translateListLabels();
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
-      setLabel('full_name', t.labels.full_name);
+      setLabel('first_name', t.labels.first_name);
+      setLabel('last_name', t.labels.last_name);
       setLabel('email', t.labels.email);
       setLabel('phone', t.labels.phone);
       setLabel('move_in', t.labels.move_in);
@@ -489,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Multi-Step: Gruppen definieren =====
     const GROUPS = [
-      ['grp-contact','full_name','email','phone'],
+      ['grp-contact','first_name','last_name','email','phone'],
       // ['grp-move','move_in','earliest_move_in'], // Einzug-Seite vorerst deaktiviert
       ['grp-household','occupants','income','employment'],
       ['grp-address','street','postal_code','city','country'],
@@ -1551,8 +1554,9 @@ document.addEventListener('DOMContentLoaded', () => {
           submitted_at: new Date().toISOString(),
           unit: meta,
           form: {
-            full_name:  FORM.full_name?.value.trim() || '',
-            email:      FORM.email?.value.trim() || '',
+            first_name:  FORM.first_name?.value.trim() || '',
+            last_name:   FORM.last_name?.value.trim() || '',
+            email:       FORM.email?.value.trim() || '',
             phone:      FORM.phone?.value.trim() || '',
             move_in:    FORM.move_in?.value || '',
             occupants:  FORM.occupants?.value || '',
