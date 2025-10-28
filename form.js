@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   // Für jede Formular-Instanz separat arbeiten
   document.querySelectorAll('.zam-apply').forEach((WRAP) => {
@@ -99,27 +98,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
-    // Sprache aus data-lang, URL (?lang=de/en) oder Browser ableiten
+    // Sprache aus data-lang, URL (?lang=de/en), Webflow-Locale im Pfad (/en), <html lang>, oder Browser ableiten
     const urlLang = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
-    
-    // Browser-Sprache ermitteln (robuster)
+    const pathLang = (/^\/en(\/|$)/i.test(location.pathname) ? 'en' : (/^\/(de)(\/|$)/i.test(location.pathname) ? 'de' : '')); // Webflow locale segment
+    const htmlLang = (document.documentElement.getAttribute('lang') || '').slice(0,2).toLowerCase();
     const browserLang = (navigator.language || navigator.userLanguage || 'en').slice(0,2).toLowerCase();
-    
-    // Priorität: data-lang > URL-Parameter > Browser-Sprache
+
+    // Priorität: data-lang (wenn != auto) > URL-Parameter > Webflow-Pfad (/en) > <html lang> > Browser-Sprache
     let LANG;
     if (WRAP.dataset.lang && WRAP.dataset.lang !== 'auto') {
       LANG = WRAP.dataset.lang.slice(0,2).toLowerCase();
     } else if (urlLang) {
       LANG = urlLang.slice(0,2).toLowerCase();
+    } else if (pathLang) {
+      LANG = pathLang;
+    } else if (htmlLang) {
+      LANG = htmlLang;
     } else {
       LANG = browserLang;
     }
-    
+
     // Nur Deutsch als Deutsch anzeigen, alle anderen Sprachen als Englisch
     LANG = (LANG === 'de') ? 'de' : 'en';
-    
-    // Debug: Browser-Sprache in Konsole ausgeben
-    console.log('[ZAM] Browser-Sprache:', navigator.language, '→ Erkannt:', browserLang, '→ Final:', LANG);
+
+    // Debug: Sprache in Konsole ausgeben (inkl. Quellen)
+    console.log('[ZAM] Locale detection →', {
+      dataLang: WRAP.dataset.lang,
+      urlLang,
+      path: location.pathname,
+      pathLang,
+      htmlLang,
+      browserLang,
+      final: LANG
+    });
 
     // i18n Wörterbuch
     const I18N = {
