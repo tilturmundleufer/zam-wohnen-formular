@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_WEBHOOK = 'https://hook.eu2.make.com/y7htkxrcwrj8yrgr35gtkumxpluat6r4';
     const MAKE_WEBHOOK_URL = (WRAP.dataset.webhook || window.MAKE_WEBHOOK_URL || DEFAULT_WEBHOOK).trim();
     const isWebhookConfigured = /^https?:\/\//.test(MAKE_WEBHOOK_URL);
-    const DEFAULT_REQUIRED = ['first_name', 'last_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
+    const DEFAULT_REQUIRED = ['full_name', 'email', 'phone', 'occupants', 'income', 'employment', 'privacy'];
     let REQUIRED = DEFAULT_REQUIRED.slice();
 
     // Sprache aus data-lang, URL (?lang=de/en), Webflow-Locale im Pfad (/en), <html lang>, oder Browser ableiten
@@ -138,8 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: `Jetzt bewerben – ${WRAP?.dataset.name || ''}`.trim(),
         subtitle: 'Schnell & unverbindlich anfragen. Wir melden uns zeitnah zurück.',
         labels: {
-          first_name: 'Vorname *',
-          last_name: 'Nachname *',
+          full_name: 'Vollständiger Name *',
           email: 'E-Mail *',
           phone: 'Telefon (mobil) *',
           move_in: 'Gewünschter Einzug *',
@@ -200,8 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: `Apply now – ${WRAP?.dataset.name || ''}`.trim(),
         subtitle: 'Quick, non-binding inquiry. We will get back to you shortly.',
         labels: {
-          first_name: 'First name *',
-          last_name: 'Last name *',
+          full_name: 'Full name *',
           email: 'Email *',
           phone: 'Phone (mobile) *',
           move_in: 'Desired move-in *',
@@ -386,8 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
       translateListLabels();
       // Labels
       const setLabel = (name, html) => { const lab = q(`label[for="${name}"]`); if (lab) lab.innerHTML = html; };
-      setLabel('first_name', t.labels.first_name);
-      setLabel('last_name', t.labels.last_name);
+      setLabel('full_name', t.labels.full_name);
       setLabel('email', t.labels.email);
       setLabel('phone', t.labels.phone);
       setLabel('move_in', t.labels.move_in);
@@ -492,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== Multi-Step: Gruppen definieren =====
     const GROUPS = [
-      ['grp-contact','first_name','last_name','email','phone'],
+      ['grp-contact','full_name','email','phone'],
       // ['grp-move','move_in','earliest_move_in'], // Einzug-Seite vorerst deaktiviert
       ['grp-household','occupants','income','employment'],
       ['grp-address','street','postal_code','city','country'],
@@ -1549,13 +1546,43 @@ document.addEventListener('DOMContentLoaded', () => {
           return translations[value] || value;
         };
 
+        // Name automatisch in Vorname, Nachname, Mittelname aufteilen
+        const splitFullName = (fullName) => {
+          if (!fullName || !fullName.trim()) {
+            return { first_name: '', middle_name: '', last_name: '' };
+          }
+          
+          const nameParts = fullName.trim().split(/\s+/);
+          
+          if (nameParts.length === 1) {
+            // Nur ein Name -> wird als Nachname behandelt
+            return { first_name: '', middle_name: '', last_name: nameParts[0] };
+          } else if (nameParts.length === 2) {
+            // Zwei Namen -> Vorname und Nachname
+            return { first_name: nameParts[0], middle_name: '', last_name: nameParts[1] };
+          } else if (nameParts.length === 3) {
+            // Drei Namen -> Vorname, Mittelname, Nachname
+            return { first_name: nameParts[0], middle_name: nameParts[1], last_name: nameParts[2] };
+          } else {
+            // Mehr als drei Namen -> Erster als Vorname, letzter als Nachname, Rest als Mittelname
+            const first = nameParts[0];
+            const last = nameParts[nameParts.length - 1];
+            const middle = nameParts.slice(1, -1).join(' ');
+            return { first_name: first, middle_name: middle, last_name: last };
+          }
+        };
+
         // Grundformular aufbauen
+        const fullName = FORM.full_name?.value.trim() || '';
+        const nameParts = splitFullName(fullName);
+        
         const formObj = {
           submitted_at: new Date().toISOString(),
           unit: meta,
           form: {
-            first_name:  FORM.first_name?.value.trim() || '',
-            last_name:   FORM.last_name?.value.trim() || '',
+            first_name:  nameParts.first_name,
+            middle_name: nameParts.middle_name,
+            last_name:   nameParts.last_name,
             email:       FORM.email?.value.trim() || '',
             phone:      FORM.phone?.value.trim() || '',
             move_in:    FORM.move_in?.value || '',
