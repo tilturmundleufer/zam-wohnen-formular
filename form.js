@@ -294,12 +294,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const parkingSelect = document.getElementById('parking');
         if (parkingSelect) {
           Array.from(parkingSelect.options).forEach(option => {
-            if (option.value === '') return; // Skip placeholder
             const text = option.textContent.trim();
-            if (text === 'Kein Bedarf') option.textContent = LANG === 'en' ? 'No need' : text;
-            else if (text === 'Tiefgarage') option.textContent = LANG === 'en' ? 'Underground parking' : text;
+            if (option.value === '') {
+              // Placeholder-Text übersetzen
+              if (text === 'Bitte wählen') option.textContent = LANG === 'en' ? 'Please choose' : text;
+            } else {
+              // Werte übersetzen
+              if (text === 'Kein Bedarf') option.textContent = LANG === 'en' ? 'No need' : text;
+              else if (text === 'Tiefgarage') option.textContent = LANG === 'en' ? 'Underground parking' : text;
+            }
           });
         }
+        
+        // Alle anderen Select-Elemente
+        const allSelects = document.querySelectorAll('select');
+        allSelects.forEach(select => {
+          Array.from(select.options).forEach(option => {
+            const text = option.textContent.trim();
+            if (option.value === '') {
+              // Placeholder-Text übersetzen
+              if (text === 'Bitte wählen') option.textContent = LANG === 'en' ? 'Please choose' : text;
+            }
+          });
+        });
       };
       translateSelectOptions();
       
