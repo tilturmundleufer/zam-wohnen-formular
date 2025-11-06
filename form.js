@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Stockwerk': 'Floor',
           'Fläche': 'Area',
           'Ausrichtung': 'Orientation',
-          'Haus': 'House',
+          'Adresse': 'Address',
           'Kaltmiete': 'Cold rent',
           'Nebenkosten': 'Additional costs',
           'Warmmiete': 'Warm rent'
@@ -1109,6 +1109,32 @@ document.addEventListener('DOMContentLoaded', () => {
       return translated;
     };
 
+    // ===== Adresse aus Hausnummer generieren =====
+    const generateAddress = (hausNummer) => {
+      if (!hausNummer) return '—';
+      
+      // Mapping: Hausnummer (1-12) -> Straßennummer
+      const hausToStreetNumber = {
+        '1': '21',
+        '2': '23',
+        '3': '25',
+        '4': '27',
+        '5': '5',
+        '6': '7',
+        '7': '9',
+        '8': '11',
+        '9': '13',
+        '10': '15',
+        '11': '17',
+        '12': '19'
+      };
+      
+      const streetNumber = hausToStreetNumber[String(hausNummer).trim()];
+      if (!streetNumber) return '—';
+      
+      return `Rosa-Kempf-Str. ${streetNumber}`;
+    };
+
     // ===== Facts füllen (lokal) =====
     // Verfügbar ab Datum formatieren (DD.MM.JJJJ -> DD.MM.JJJJ)
     const availableFromRaw = WRAP?.dataset.verfuegbarAb || '';
@@ -1119,7 +1145,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('#fact-rooms', meta.zimmer);
     setText('#fact-size',  meta.wohnflaeche ? (meta.wohnflaeche + ' m²') : '');
     setText('#fact-orient', translateCMSContent(meta.ausrichtung));
-    setText('#fact-haus',  meta.haus);
+    const adresse = generateAddress(meta.haus);
+    setText('#fact-adresse', adresse);
     setText('#fact-warm',  currency(meta.warmmiete));
     setText('#fact-cold',  currency(meta.kaltmiete));
     setText('#fact-nk',    currency(meta.nebenkosten));
@@ -1409,6 +1436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hf('unit_id'))              hf('unit_id').value = meta.unit_id;
     if (hf('unit_name'))            hf('unit_name').value = meta.name;
     if (hf('haus'))                 hf('haus').value = meta.haus;
+    if (hf('adresse'))              hf('adresse').value = adresse;
     if (hf('stockwerk'))            hf('stockwerk').value = meta.stockwerk;
     if (hf('zimmer'))               hf('zimmer').value = meta.zimmer;
     if (hf('wohnflaeche_qm'))       hf('wohnflaeche_qm').value = meta.wohnflaeche;
@@ -1649,6 +1677,7 @@ document.addEventListener('DOMContentLoaded', () => {
               unit_id: meta.unit_id || '',
               unit_name: meta.name || '',
               unit_haus: meta.haus || '',
+              unit_adresse: generateAddress(meta.haus) || '',
               unit_stockwerk: meta.stockwerk || '',
               unit_zimmer: meta.zimmer || '',
               unit_wohnflaeche: meta.wohnflaeche || '',
