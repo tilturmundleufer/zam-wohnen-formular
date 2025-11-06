@@ -1743,6 +1743,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 unit_id: meta.unit_id || '',
                 unit_name: meta.name || '',
                 unit_haus: meta.haus || '',
+                unit_adresse: generateAddress(meta.haus) || '',
                 unit_stockwerk: meta.stockwerk || '',
                 unit_zimmer: meta.zimmer || '',
                 unit_wohnflaeche: meta.wohnflaeche || '',
