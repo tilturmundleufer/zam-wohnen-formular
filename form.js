@@ -1493,8 +1493,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Submit (lokal) =====
+    let isSubmitting = false; // Verhindert doppelte Submits
     FORM.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      // Verhindere doppelte Submits
+      if (isSubmitting) {
+        console.warn('[ZAM] Submit bereits in Bearbeitung, ignoriere erneuten Submit');
+        return;
+      }
+      
       // Zeitbasierte Schranke
       const MIN_MS = 2500;
       if (Date.now() - formInitAt < MIN_MS) {
@@ -1514,6 +1522,15 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch {}
 
       if (!validate()) return;
+      
+      // Prüfe, ob meta vollständig ist
+      if (!meta || !meta.unit_id) {
+        console.error('[ZAM] Meta-Daten unvollständig:', meta);
+        if (ERR) { ERR.hidden = false; const p = ERR.querySelector('p'); if (p) p.textContent = I18N[LANG].errs.generic || 'Fehler: Formular-Daten unvollständig.'; }
+        return;
+      }
+      
+      isSubmitting = true;
 
       const spinner = SUBMIT ? SUBMIT.querySelector('.btn__spinner') : null;
       if (SUBMIT) SUBMIT.disabled = true;
@@ -1602,6 +1619,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Grundformular aufbauen
         const fullName = FORM.full_name?.value.trim() || '';
+        const email = FORM.email?.value.trim() || '';
+        
+        // Zusätzliche Validierung: Prüfe, ob mindestens Name und Email vorhanden sind
+        if (!fullName || !email) {
+          console.error('[ZAM] Wichtige Felder fehlen:', { fullName: !!fullName, email: !!email });
+          throw new Error('Name und E-Mail sind erforderlich');
+        }
+        
         const nameParts = splitFullName(fullName);
         
         const formObj = {
@@ -1704,15 +1729,34 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('[ZAM] Flat Payload:', flatPayload);
             console.log('[ZAM] Flat Payload Size:', flatBodyStr.length, 'bytes');
             
+            // Prüfe, ob Payload tatsächlich Daten enthält
+            const hasData = Object.values(flatPayload).some(v => v !== null && v !== undefined && v !== '');
+            if (!hasData) {
+              console.error('[ZAM] Payload ist leer!', flatPayload);
+              throw new Error('Payload enthält keine Daten');
+            }
+            
             // FormData für Make.com - funktioniert zuverlässiger
             const formData = new FormData();
+            let entryCount = 0;
             Object.entries(flatPayload).forEach(([key, value]) => {
-              formData.append(key, value == null ? '' : String(value));
+              const stringValue = value == null ? '' : String(value);
+              formData.append(key, stringValue);
+              if (stringValue !== '') entryCount++;
             });
             
-            console.log('[ZAM] FormData entries:');
+            console.log('[ZAM] FormData entries:', entryCount, 'non-empty entries');
+            console.log('[ZAM] FormData total entries:', Object.keys(flatPayload).length);
             for (let [key, value] of formData.entries()) {
-              console.log(`  ${key}: ${value}`);
+              if (value !== '') {
+                console.log(`  ${key}: ${value}`);
+              }
+            }
+            
+            // Zusätzliche Validierung: Prüfe, ob FormData tatsächlich Daten enthält
+            if (entryCount === 0) {
+              console.error('[ZAM] FormData enthält keine nicht-leeren Werte!');
+              throw new Error('FormData enthält keine Daten');
             }
 
         const res = await fetch(MAKE_WEBHOOK_URL, {
@@ -1762,11 +1806,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 )
               };
               
+              // Prüfe auch im Fallback, ob Payload Daten enthält
+              const fallbackHasData = Object.values(flatPayload).some(v => v !== null && v !== undefined && v !== '');
+              if (!fallbackHasData) {
+                console.error('[ZAM] Fallback Payload ist leer!', flatPayload);
+                throw new Error('Fallback Payload enthält keine Daten');
+              }
+              
               // FormData auch für Fallback
               const fallbackFormData = new FormData();
+              let fallbackEntryCount = 0;
               Object.entries(flatPayload).forEach(([key, value]) => {
-                fallbackFormData.append(key, value == null ? '' : String(value));
+                const stringValue = value == null ? '' : String(value);
+                fallbackFormData.append(key, stringValue);
+                if (stringValue !== '') fallbackEntryCount++;
               });
+              
+              if (fallbackEntryCount === 0) {
+                console.error('[ZAM] Fallback FormData enthält keine nicht-leeren Werte!');
+                throw new Error('Fallback FormData enthält keine Daten');
+              }
               
               await fetch(MAKE_WEBHOOK_URL, { 
                 method: 'POST', 
@@ -1775,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 keepalive: true 
               });
               sentOk = true;
-              console.log('[ZAM] Webhook sent via no-cors fallback');
+              console.log('[ZAM] Webhook sent via no-cors fallback with', fallbackEntryCount, 'non-empty entries');
             } catch (err2) {
               console.error('[ZAM] Webhook Fallback Error:', err2);
               sentOk = false;
@@ -1808,10 +1867,17 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error('Response not OK');
         }
       } catch (err) {
-        console.error(err);
-        if (ERR) ERR.hidden = false;
+        console.error('[ZAM] Submit Error:', err);
+        if (ERR) {
+          ERR.hidden = false;
+          const p = ERR.querySelector('p');
+          if (p) {
+            p.textContent = err.message || I18N[LANG].error_p || 'Bitte später nochmal versuchen oder Kontakt aufnehmen.';
+          }
+        }
         if (SUCCESS) SUCCESS.hidden = true;
       } finally {
+        isSubmitting = false; // Reset Submit-Flag
         const spinner2 = SUBMIT ? SUBMIT.querySelector('.btn__spinner') : null;
         if (spinner2) spinner2.style.display = 'none';
         if (SUBMIT) SUBMIT.disabled = false;
