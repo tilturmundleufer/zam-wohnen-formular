@@ -1562,9 +1562,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Employment
             'Employed (permanent)': 'Angestellt (unbefristet)',
             'Employed (temporary)': 'Angestellt (befristet)',
-            'Self-employed': 'Selbstständig',
-            'Student': 'Student',
+            'Employed (fixed-term)': 'Angestellt (befristet)',
+            'Employed (fixed term)': 'Angestellt (befristet)',
+            'Self-employed': 'Selbstständig/Freiberuflich',
+            'Self-employed/Freelance': 'Selbstständig/Freiberuflich',
+            'Self-employed / Freelance': 'Selbstständig/Freiberuflich',
+            'Student': 'Studierend/Auszubildend',
+            'Student/Apprentice': 'Studierend/Auszubildend',
             'Pensioner': 'Rentner',
+            'Retired': 'Rentner',
             'Unemployed': 'Arbeitslos',
             'Other': 'Sonstiges',
             
@@ -1587,6 +1593,28 @@ document.addEventListener('DOMContentLoaded', () => {
             'Evening': 'Abend',
             'All day': 'Ganztags'
           };
+          
+          const normalizedValue = value.trim();
+          if (translations[normalizedValue] != null) {
+            return translations[normalizedValue];
+          }
+
+          // Spezielle Fälle für Employment mit Slash-Varianten oder Groß/Kleinschreibung
+          if (fieldName === 'employment') {
+            const lower = normalizedValue.toLowerCase();
+            if (lower.includes('self-employed') || lower.includes('freelance')) {
+              return 'Selbstständig/Freiberuflich';
+            }
+            if (lower.includes('student') || lower.includes('apprentice')) {
+              return 'Studierend/Auszubildend';
+            }
+            if (lower.includes('permanent')) {
+              return 'Angestellt (unbefristet)';
+            }
+            if (lower.includes('fixed') || lower.includes('temporary')) {
+              return 'Angestellt (befristet)';
+            }
+          }
           
           return translations[value] || value;
         };
