@@ -102,7 +102,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlLang = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
     const pathLang = (/^\/en(\/|$)/i.test(location.pathname) ? 'en' : (/^\/(de)(\/|$)/i.test(location.pathname) ? 'de' : '')); // Webflow locale segment
     const htmlLang = (document.documentElement.getAttribute('lang') || '').slice(0,2).toLowerCase();
-    const browserLang = (navigator.language || navigator.userLanguage || 'en').slice(0,2).toLowerCase();
+    
+    // Browser-Sprache erkennen: Berücksichtige navigator.languages (Array) und navigator.language (String)
+    // navigator.languages enthält alle bevorzugten Sprachen in der Reihenfolge der Präferenz
+    let browserLang = 'en'; // Fallback
+    if (navigator.languages && Array.isArray(navigator.languages) && navigator.languages.length > 0) {
+      // Durchsuche alle Browser-Sprachen nach Deutsch
+      for (const lang of navigator.languages) {
+        const langCode = String(lang).slice(0,2).toLowerCase();
+        if (langCode === 'de') {
+          browserLang = 'de';
+          break;
+        }
+      }
+      // Wenn kein Deutsch gefunden, verwende die primäre Sprache
+      if (browserLang === 'en') {
+        browserLang = String(navigator.languages[0]).slice(0,2).toLowerCase();
+      }
+    } else if (navigator.language) {
+      // Fallback für ältere Browser
+      browserLang = String(navigator.language).slice(0,2).toLowerCase();
+    } else if (navigator.userLanguage) {
+      // Fallback für sehr alte IE
+      browserLang = String(navigator.userLanguage).slice(0,2).toLowerCase();
+    }
 
     // Priorität: data-lang (wenn != auto) > URL-Parameter > Webflow-Pfad (/en) > <html lang> > Browser-Sprache
     let LANG;
@@ -128,6 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
       path: location.pathname,
       pathLang,
       htmlLang,
+      navigatorLanguages: navigator.languages || null,
+      navigatorLanguage: navigator.language || null,
+      navigatorUserLanguage: navigator.userLanguage || null,
       browserLang,
       final: LANG
     });
