@@ -1764,32 +1764,44 @@ document.addEventListener('DOMContentLoaded', () => {
               throw new Error('Payload enthält keine Daten');
             }
             
-            // FormData für Make.com - funktioniert zuverlässiger
-            const formData = new FormData();
+            // URL-encoded Format für Make.com - zuverlässiger als FormData
+            // Make.com hat bekannte Probleme mit multipart/form-data
+            const urlEncodedData = new URLSearchParams();
             let entryCount = 0;
             Object.entries(flatPayload).forEach(([key, value]) => {
               const stringValue = value == null ? '' : String(value);
-              formData.append(key, stringValue);
+              urlEncodedData.append(key, stringValue);
               if (stringValue !== '') entryCount++;
             });
             
-            console.log('[ZAM] FormData entries:', entryCount, 'non-empty entries');
-            console.log('[ZAM] FormData total entries:', Object.keys(flatPayload).length);
-            for (let [key, value] of formData.entries()) {
-              if (value !== '') {
+            console.log('[ZAM] URL-encoded entries:', entryCount, 'non-empty entries');
+            console.log('[ZAM] Total entries:', Object.keys(flatPayload).length);
+            console.log('[ZAM] Payload size:', urlEncodedData.toString().length, 'bytes');
+            
+            // Debug: Zeige die ersten paar Einträge
+            let debugCount = 0;
+            for (let [key, value] of urlEncodedData.entries()) {
+              if (value !== '' && debugCount < 10) {
                 console.log(`  ${key}: ${value}`);
+                debugCount++;
               }
             }
+            if (entryCount > 10) {
+              console.log(`  ... und ${entryCount - 10} weitere Einträge`);
+            }
             
-            // Zusätzliche Validierung: Prüfe, ob FormData tatsächlich Daten enthält
+            // Zusätzliche Validierung: Prüfe, ob Daten tatsächlich vorhanden sind
             if (entryCount === 0) {
-              console.error('[ZAM] FormData enthält keine nicht-leeren Werte!');
-              throw new Error('FormData enthält keine Daten');
+              console.error('[ZAM] Keine nicht-leeren Werte zum Senden!');
+              throw new Error('Payload enthält keine Daten');
             }
 
         const res = await fetch(MAKE_WEBHOOK_URL, {
           method: 'POST',
-              body: formData,
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: urlEncodedData.toString(),
               mode: 'cors',
           keepalive: true
         });
@@ -1841,23 +1853,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Fallback Payload enthält keine Daten');
               }
               
-              // FormData auch für Fallback
-              const fallbackFormData = new FormData();
+              // URL-encoded auch für Fallback
+              const fallbackUrlEncoded = new URLSearchParams();
               let fallbackEntryCount = 0;
               Object.entries(flatPayload).forEach(([key, value]) => {
                 const stringValue = value == null ? '' : String(value);
-                fallbackFormData.append(key, stringValue);
+                fallbackUrlEncoded.append(key, stringValue);
                 if (stringValue !== '') fallbackEntryCount++;
               });
               
               if (fallbackEntryCount === 0) {
-                console.error('[ZAM] Fallback FormData enthält keine nicht-leeren Werte!');
-                throw new Error('Fallback FormData enthält keine Daten');
+                console.error('[ZAM] Fallback enthält keine nicht-leeren Werte!');
+                throw new Error('Fallback Payload enthält keine Daten');
               }
               
               await fetch(MAKE_WEBHOOK_URL, { 
-                method: 'POST', 
-                body: fallbackFormData, 
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: fallbackUrlEncoded.toString(), 
                 mode: 'no-cors', 
                 keepalive: true 
               });
